@@ -1,8 +1,5 @@
-import { motion } from 'framer-motion'
-import { pitches } from '../../content/pitches'
-import { staggerParent, VIEWPORT } from '../../lib/motion'
 import { SectionHeading } from '../ui/SectionHeading'
-import { PitchCard } from './PitchCard'
+import { PitchAccordion } from './PitchAccordion'
 
 export function PitchSection() {
   return (
@@ -20,17 +17,7 @@ export function PitchSection() {
           it and a route to revenue. The full thinking is on every page.
         </SectionHeading>
 
-        <motion.div
-          variants={staggerParent(0.1)}
-          initial="hidden"
-          whileInView="visible"
-          viewport={VIEWPORT}
-          className="flex flex-col gap-4"
-        >
-          {pitches.map((pitch, i) => (
-            <PitchCard key={pitch.slug} pitch={pitch} index={i} />
-          ))}
-        </motion.div>
+        <PitchAccordion />
       </div>
     </section>
   )

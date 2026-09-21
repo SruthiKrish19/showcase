@@ -3,7 +3,7 @@ import { getPitch, nextPitch } from '../content/pitches'
 import { DetailHero } from '../components/detail/DetailHero'
 import { BulletList, DetailSection } from '../components/detail/DetailSection'
 import { NextUp } from '../components/detail/NextUp'
-import { StageBadge } from '../components/sections/PitchCard'
+import { StageBadge } from '../components/sections/PitchAccordion'
 
 export default function PitchDetail() {
   const { slug } = useParams()
