@@ -10,6 +10,7 @@ import { NextUp } from '../components/detail/NextUp'
 import { Chip } from '../components/ui/Chip'
 import { Reveal } from '../components/ui/Reveal'
 import { CoverArt } from '../components/ui/CoverArt'
+import { Demo, isPhoneDemo } from '../components/demos'
 
 export default function WorkDetail() {
   const { slug } = useParams()
@@ -47,19 +48,23 @@ export default function WorkDetail() {
       />
 
       <div className="mx-auto max-w-4xl px-5 sm:px-6">
-        <Reveal>
-          <div className="aspect-[16/8] overflow-hidden rounded-3xl border border-white/8">
-            <CoverArt
-              accentKey={project.accent}
-              src={project.cover}
-              alt={project.title}
-            />
-          </div>
-        </Reveal>
+        {!project.demo && (
+          <Reveal>
+            <div className="aspect-[16/8] overflow-hidden rounded-3xl border border-white/8">
+              <CoverArt
+                accentKey={project.accent}
+                src={project.cover}
+                alt={project.title}
+              />
+            </div>
+          </Reveal>
+        )}
 
-        <div className="mt-14">
-          <MetricRow metrics={project.metrics} accentKey={project.accent} />
-        </div>
+        {project.metrics.length > 0 && (
+          <div className="mt-14">
+            <MetricRow metrics={project.metrics} accentKey={project.accent} />
+          </div>
+        )}
 
         <div className="mt-6">
           <DetailSection label="The problem">
@@ -90,6 +95,32 @@ export default function WorkDetail() {
             </div>
           </Reveal>
         ) : null}
+
+        {/* Demo closes the page — the reader has the context by this point */}
+        {project.demo && (
+          <Reveal className="border-t border-white/6 pt-10">
+            <figure>
+              <figcaption className="mb-5">
+                <h2 className="font-display text-xs uppercase tracking-[0.18em] text-faint">
+                  See it working
+                </h2>
+                <p className="mt-2 text-sm text-muted">
+                  A simulated walkthrough of the product — illustrative, not a
+                  live instance.
+                </p>
+              </figcaption>
+              <div
+                className={
+                  isPhoneDemo(project.demo)
+                    ? 'mx-auto w-[230px] sm:w-[260px]'
+                    : 'w-full'
+                }
+              >
+                <Demo demo={project.demo} />
+              </div>
+            </figure>
+          </Reveal>
+        )}
       </div>
 
       <div className="mt-10">

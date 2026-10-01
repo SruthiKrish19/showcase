@@ -1,3 +1,5 @@
+import type { DemoKey } from '../components/demos'
+
 export type Accent = 'violet' | 'cyan' | 'amber' | 'rose' | 'lime'
 
 export type Metric = {
@@ -26,6 +28,8 @@ export type Project = {
   accent: Accent
   /** Path under /public, or a remote URL. Falls back to a generated gradient. */
   cover?: string
+  /** Simulated in-screen demo shown on the detail page and mobile card. */
+  demo?: DemoKey
   featured?: boolean
   metrics: Metric[]
   links?: Link[]

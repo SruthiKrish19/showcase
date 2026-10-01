@@ -8,6 +8,7 @@ import { accent } from '../../lib/accent'
 import { cn } from '../../lib/cn'
 import { revealVariants, staggerParent, transition, VIEWPORT } from '../../lib/motion'
 import { CoverArt } from '../ui/CoverArt'
+import { Demo, isPhoneDemo } from '../demos'
 
 /**
  * Two genuinely different layouts rather than one squeezed into both:
@@ -96,12 +97,27 @@ function Card({ project, index, reduced }: CardProps) {
         />
 
         <div className="relative aspect-[4/3] overflow-hidden sm:aspect-[16/9]">
-          <CoverArt
-            accentKey={project.accent}
-            src={project.cover}
-            alt=""
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/55 to-transparent" />
+          {project.demo ? (
+            <div
+              className="absolute inset-0 flex items-center justify-center p-4"
+              style={{
+                background: `radial-gradient(120% 100% at 50% 0%, ${a.hex}1f, transparent 65%), #0a0a10`,
+              }}
+            >
+              <div
+                className={
+                  isPhoneDemo(project.demo)
+                    ? 'h-full w-[42%] max-w-[150px]'
+                    : 'h-full w-full'
+                }
+              >
+                <Demo demo={project.demo} />
+              </div>
+            </div>
+          ) : (
+            <CoverArt accentKey={project.accent} src={project.cover} alt="" />
+          )}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-surface via-surface/35 to-transparent" />
 
           {/* Oversized ghost index, set into the artwork */}
           <span
@@ -131,7 +147,7 @@ function Card({ project, index, reduced }: CardProps) {
           </p>
 
           {/* Numbers carry more weight than chips on a small screen */}
-          <dl className="mt-5 flex gap-7">
+          <dl className={cn('flex gap-7', project.metrics.length > 0 && 'mt-5')}>
             {project.metrics.slice(0, 2).map((m) => (
               <div key={m.label}>
                 <dd
