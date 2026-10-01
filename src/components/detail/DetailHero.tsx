@@ -26,7 +26,7 @@ export function DetailHero({
   const a = accent(accentKey)
 
   return (
-    <header className="relative overflow-hidden px-6 pt-32 pb-14 md:pt-40 md:pb-20">
+    <header className="relative overflow-hidden px-5 pt-28 pb-12 sm:px-6 md:pt-40 md:pb-20">
       <span
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[420px] opacity-60"
@@ -54,7 +54,7 @@ export function DetailHero({
           initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
           animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
           transition={{ duration: 0.7, ease: EASE, delay: 0.08 }}
-          className="mt-7 font-display text-[clamp(2.2rem,6.5vw,4.25rem)] font-semibold leading-[1.02] tracking-[-0.03em]"
+          className="mt-7 font-display text-[clamp(1.9rem,6.5vw,4.25rem)] font-semibold leading-[1.02] tracking-[-0.03em]"
         >
           {title}
         </motion.h1>
@@ -63,7 +63,7 @@ export function DetailHero({
           initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
           animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
           transition={{ duration: 0.7, ease: EASE, delay: 0.18 }}
-          className="mt-5 max-w-2xl text-balance-safe text-lg leading-relaxed text-muted"
+          className="mt-4 max-w-2xl text-balance-safe text-base leading-relaxed text-muted sm:mt-5 sm:text-lg"
         >
           {tagline}
         </motion.p>

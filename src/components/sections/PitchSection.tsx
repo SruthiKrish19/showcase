@@ -1,13 +1,13 @@
 import { SectionHeading } from '../ui/SectionHeading'
-import { PitchAccordion } from './PitchAccordion'
+import { PitchCarousel } from './PitchCarousel'
 
 export function PitchSection() {
   return (
     <section
       id="pitches"
-      className="relative scroll-mt-24 border-y border-white/5 bg-white/[0.015] py-24 md:py-32"
+      className="relative scroll-mt-24 border-y border-white/5 bg-white/[0.015] py-16 md:py-32"
     >
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto max-w-6xl px-5 sm:px-6">
         <SectionHeading
           index="02 / PITCHES"
           title="SaaS products worth building."
@@ -17,7 +17,7 @@ export function PitchSection() {
           it and a route to revenue. The full thinking is on every page.
         </SectionHeading>
 
-        <PitchAccordion />
+        <PitchCarousel />
       </div>
     </section>
   )

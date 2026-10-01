@@ -1,6 +1,6 @@
 export function Footer() {
   return (
-    <footer className="relative border-t border-white/5 px-6 py-10">
+    <footer className="relative border-t border-white/5 px-5 py-7 sm:px-6">
       <div className="mx-auto flex max-w-6xl items-center justify-between text-sm text-faint">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full bg-gradient-to-br from-violet to-cyan" />

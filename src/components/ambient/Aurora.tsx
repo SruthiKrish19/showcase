@@ -43,7 +43,7 @@ export function Aurora() {
       {BLOBS.map((blob) => (
         <div
           key={blob.animation}
-          className={`absolute rounded-full opacity-[0.28] blur-[100px] ${blob.className}`}
+          className={`absolute rounded-full opacity-[0.28] blur-[60px] sm:blur-[100px] ${blob.className}`}
           style={{
             background: `radial-gradient(circle at center, ${blob.color}, transparent 70%)`,
             mixBlendMode: 'screen',

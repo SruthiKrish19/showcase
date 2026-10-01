@@ -20,7 +20,7 @@ export function Marquee({ items, speed = 40 }: Props) {
         {row.map((item, i) => (
           <span
             key={`${item}-${i}`}
-            className="whitespace-nowrap rounded-full border border-white/8 bg-white/[0.03] px-4 py-2 text-sm text-muted"
+            className="whitespace-nowrap rounded-full border border-white/8 bg-white/[0.03] px-3.5 py-1.5 text-[13px] text-muted sm:px-4 sm:py-2 sm:text-sm"
           >
             {item}
           </span>

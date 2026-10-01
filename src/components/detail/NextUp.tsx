@@ -16,7 +16,7 @@ export function NextUp({ to, eyebrow, title, accentKey }: Props) {
   return (
     <Link
       to={to}
-      className="group relative block overflow-hidden border-t border-white/8 px-6 py-16 transition-colors duration-500 md:py-24"
+      className="group relative block overflow-hidden border-t border-white/8 px-5 py-14 transition-colors duration-500 sm:px-6 md:py-24"
     >
       <span
         aria-hidden
@@ -30,7 +30,7 @@ export function NextUp({ to, eyebrow, title, accentKey }: Props) {
           <span className="font-display text-xs tracking-[0.18em] text-faint uppercase">
             {eyebrow}
           </span>
-          <p className="mt-3 font-display text-3xl font-semibold tracking-tight transition-transform duration-500 group-hover:translate-x-1.5 md:text-5xl">
+          <p className="mt-3 font-display text-2xl font-semibold tracking-tight transition-transform duration-500 group-hover:translate-x-1.5 sm:text-3xl md:text-5xl">
             {title}
           </p>
         </div>

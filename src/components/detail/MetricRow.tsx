@@ -18,10 +18,10 @@ export function MetricRow({
     <Reveal>
       <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-white/8 bg-white/8 sm:grid-cols-3">
         {metrics.map((m) => (
-          <div key={m.label} className="bg-bg/90 px-6 py-7">
+          <div key={m.label} className="bg-bg/90 px-5 py-5 sm:px-6 sm:py-7">
             <dd
               className={cn(
-                'font-display text-4xl font-semibold tracking-tight md:text-5xl',
+                'font-display text-3xl font-semibold tracking-tight sm:text-4xl md:text-5xl',
                 a.text,
               )}
             >

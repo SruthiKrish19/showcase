@@ -3,7 +3,7 @@ import { getPitch, nextPitch } from '../content/pitches'
 import { DetailHero } from '../components/detail/DetailHero'
 import { BulletList, DetailSection } from '../components/detail/DetailSection'
 import { NextUp } from '../components/detail/NextUp'
-import { StageBadge } from '../components/sections/PitchAccordion'
+import { StageBadge } from '../components/sections/PitchCarousel'
 
 export default function PitchDetail() {
   const { slug } = useParams()
@@ -29,7 +29,7 @@ export default function PitchDetail() {
         }
       />
 
-      <div className="mx-auto max-w-4xl px-6">
+      <div className="mx-auto max-w-4xl px-5 sm:px-6">
         <DetailSection label="The problem">
           <p>{pitch.problem}</p>
         </DetailSection>

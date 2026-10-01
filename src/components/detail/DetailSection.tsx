@@ -9,14 +9,14 @@ export function DetailSection({
   children: ReactNode
 }) {
   return (
-    <section className="grid gap-4 border-t border-white/6 py-10 md:grid-cols-[180px_1fr] md:gap-10 md:py-12">
+    <section className="grid gap-3 border-t border-white/6 py-8 sm:gap-4 sm:py-10 md:grid-cols-[180px_1fr] md:gap-10 md:py-12">
       <Reveal>
         <h2 className="font-display text-xs tracking-[0.18em] text-faint uppercase md:pt-1">
           {label}
         </h2>
       </Reveal>
       <Reveal delay={0.08}>
-        <div className="space-y-4 text-base leading-relaxed text-muted [&>p]:text-balance-safe">
+        <div className="space-y-4 text-[15px] leading-relaxed text-muted sm:text-base [&>p]:text-balance-safe">
           {children}
         </div>
       </Reveal>

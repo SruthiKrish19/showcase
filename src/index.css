@@ -32,6 +32,9 @@
   }
 
   body {
+    /* Keep content clear of the notch and home indicator in landscape */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
     background-color: var(--color-bg);
     color: var(--color-ink);
     font-family: var(--font-body);
@@ -147,6 +150,12 @@
 @keyframes marquee {
   from { transform: translate3d(0, 0, 0); }
   to   { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (hover: none) {
+  .group:hover .group-hover\:scale-x-100 {
+    transform: scaleX(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

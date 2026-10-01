@@ -46,7 +46,7 @@ export default function WorkDetail() {
         }
       />
 
-      <div className="mx-auto max-w-4xl px-6">
+      <div className="mx-auto max-w-4xl px-5 sm:px-6">
         <Reveal>
           <div className="aspect-[16/8] overflow-hidden rounded-3xl border border-white/8">
             <CoverArt

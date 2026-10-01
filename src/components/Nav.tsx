@@ -27,7 +27,7 @@ export function Nav() {
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.7, ease: EASE, delay: 0.2 }}
-      className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4 sm:pt-6"
+      className="fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 sm:px-4 sm:pt-6"
     >
       <nav
         className={cn(
@@ -50,14 +50,14 @@ export function Nav() {
               {onHome ? (
                 <a
                   href={link.href.replace('/', '')}
-                  className="rounded-full px-3 py-1.5 text-sm text-muted transition-colors hover:bg-white/5 hover:text-ink sm:px-4"
+                  className="rounded-full px-2.5 py-2 text-[13px] text-muted transition-colors hover:bg-white/5 hover:text-ink sm:px-4 sm:text-sm"
                 >
                   {link.label}
                 </a>
               ) : (
                 <Link
                   to={link.href}
-                  className="rounded-full px-3 py-1.5 text-sm text-muted transition-colors hover:bg-white/5 hover:text-ink sm:px-4"
+                  className="rounded-full px-2.5 py-2 text-[13px] text-muted transition-colors hover:bg-white/5 hover:text-ink sm:px-4 sm:text-sm"
                 >
                   {link.label}
                 </Link>

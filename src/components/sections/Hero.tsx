@@ -21,7 +21,7 @@ export function Hero() {
   const opacity = useTransform(scrollYProgress, [0, 0.16], [1, reduced ? 1 : 0])
 
   return (
-    <section className="relative flex min-h-[100svh] items-center justify-center px-6 pt-28 pb-20">
+    <section className="relative flex min-h-[100svh] items-center justify-center px-5 pt-24 pb-16 sm:px-6 sm:pt-28 sm:pb-20">
       <motion.div
         style={{ y, opacity }}
         className="mx-auto w-full max-w-5xl text-center"
@@ -36,8 +36,8 @@ export function Hero() {
 
         {/* Two hard lines: the static phrase never wraps, so the typed line
             always sits directly beneath it. */}
-        <h1 className="mt-8 font-display text-[clamp(1.6rem,6vw,4rem)] font-semibold leading-[1.08] tracking-[-0.03em]">
-          <span className="block -mb-[0.12em] whitespace-nowrap">
+        <h1 className="mt-7 font-display text-[clamp(2rem,8.6vw,2.85rem)] font-semibold leading-[1.08] tracking-[-0.03em] sm:mt-8 sm:text-[clamp(1.6rem,5.2vw,4rem)]">
+          <span className="block -mb-[0.12em] sm:whitespace-nowrap">
             <SplitText text="Building products that feel" delay={0.4} />
           </span>
           <motion.span
@@ -54,7 +54,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
           animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
           transition={{ duration: 0.7, ease: EASE, delay: 1.15 }}
-          className="mx-auto mt-8 max-w-2xl text-balance-safe text-base leading-relaxed text-muted sm:text-lg"
+          className="mx-auto mt-7 max-w-2xl text-balance-safe text-[15px] leading-relaxed text-muted sm:mt-8 sm:text-lg"
         >
           Turning sharp ideas into products people love to use. Some are
           already out in the world — others are still looking for a backer.
@@ -64,7 +64,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: EASE, delay: 1.3 }}
-          className="mt-10 flex flex-wrap items-center justify-center gap-3"
+          className="mt-9 flex flex-wrap items-center justify-center gap-3 sm:mt-10"
         >
           <MagneticButton href="#work">
             See the work
