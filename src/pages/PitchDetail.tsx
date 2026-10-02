@@ -4,6 +4,7 @@ import { DetailHero } from '../components/detail/DetailHero'
 import { BulletList, DetailSection } from '../components/detail/DetailSection'
 import { NextUp } from '../components/detail/NextUp'
 import { StageBadge } from '../components/sections/PitchCarousel'
+import { Reveal } from '../components/ui/Reveal'
 
 export default function PitchDetail() {
   const { slug } = useParams()
@@ -21,6 +22,7 @@ export default function PitchDetail() {
         title={pitch.title}
         tagline={pitch.tagline}
         accentKey={pitch.accent}
+        context={pitch.context}
         meta={
           <div className="flex flex-wrap items-center gap-4">
             <StageBadge stage={pitch.stage} />
@@ -30,13 +32,17 @@ export default function PitchDetail() {
       />
 
       <div className="mx-auto max-w-4xl px-5 sm:px-6">
-        <DetailSection label="The problem">
-          <p>{pitch.problem}</p>
-        </DetailSection>
+        <Reveal>
+          <p className="text-balance-safe text-lg leading-relaxed text-ink sm:text-xl sm:leading-relaxed">
+            {pitch.solution}
+          </p>
+        </Reveal>
 
-        <DetailSection label="The solution">
-          <p>{pitch.solution}</p>
-        </DetailSection>
+        <div className="mt-6">
+          <DetailSection label="The problem">
+            <p>{pitch.problem}</p>
+          </DetailSection>
+        </div>
 
         <DetailSection label="Who it is for">
           <p>{pitch.market}</p>

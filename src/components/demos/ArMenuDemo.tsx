@@ -1,180 +1,164 @@
-import { motion, useReducedMotion } from 'framer-motion'
-import { Flame, Leaf, Plus, ScanLine, Star } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Leaf, Flame, Share, Smartphone, X } from 'lucide-react'
 import { PhoneFrame } from './DeviceFrame'
 import { Stage } from './Stage'
+import { ArScene } from './three/Lazy'
 import { useCycle } from './useCycle'
 
+/**
+ * Augmented reality — the phone's own AR viewer, not a 3D widget. The camera
+ * feed is a rendered room with a wooden table, glass, cutlery and the QR stand
+ * the guest just scanned. The dish stays locked to the table while the
+ * handheld camera drifts; the chrome follows the native AR viewer's layout
+ * (close / AR–Object toggle / share, coaching card, product sheet).
+ */
 export function ArMenuDemo() {
-  const reduced = useReducedMotion()
-  const step = useCycle(4, 1700)
-  const placed = step >= 1
-  const sheet = step >= 2
+  const step = useCycle(6, 1700)
+  const found = step >= 1
+  const placed = step >= 2
+  const measured = step >= 3
+  const sheet = step >= 4
 
   return (
     <PhoneFrame className="h-full">
       <Stage width={300} height={620}>
-        <div
-          className="relative h-full w-full overflow-hidden"
-          style={{
-            background:
-              'linear-gradient(175deg, #1a141c 0%, #2a1f1d 45%, #4a3528 100%)',
-          }}
-        >
-          {/* Wood grain on the table */}
+        <div className="relative h-full w-full overflow-hidden bg-[#1a110b]">
+          {/* Camera feed */}
+          <div className="absolute inset-0">
+            <ArScene placed={placed} />
+          </div>
+
+          {/* Lens vignette + sensor grain, fixed to the camera not the world */}
+          <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(80% 65% at 50% 45%, transparent 55%, rgba(0,0,0,0.5) 100%)' }} />
           <div
-            className="absolute inset-x-0 bottom-0 h-[45%] opacity-25"
+            className="pointer-events-none absolute inset-0 opacity-[0.07] mix-blend-overlay"
             style={{
               backgroundImage:
-                'repeating-linear-gradient(95deg, rgba(0,0,0,0.5) 0 2px, transparent 2px 14px)',
+                "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E\")",
             }}
           />
 
+          {/* Surface reticle, on the table where the dish will land */}
+          <motion.div
+            className="absolute left-1/2 top-[36%] h-[110px] w-[190px] -translate-x-1/2"
+            style={{ transform: 'translateX(-50%) rotateX(68deg)' }}
+            initial={false}
+            animate={{ opacity: placed ? 0 : found ? 1 : 0.35, scale: found ? 1 : 0.9 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.div
+              className="h-full w-full rounded-[50%] border-[2.5px] border-white/90"
+              animate={found ? { scale: [1, 1.04, 1] } : {}}
+              transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <span className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white" />
+          </motion.div>
+
+          {/* Placement ripple */}
+          <motion.div
+            key={placed ? 'on' : 'off'}
+            className="pointer-events-none absolute left-1/2 top-[36%] h-[110px] w-[190px] -translate-x-1/2 rounded-[50%] border border-white/70"
+            style={{ transform: 'translateX(-50%) rotateX(68deg)' }}
+            initial={{ opacity: placed ? 0.8 : 0, scale: 0.6 }}
+            animate={{ opacity: 0, scale: 1.6 }}
+            transition={{ duration: 0.9, ease: 'easeOut' }}
+          />
+
+          {/* True-size callout */}
+          <motion.div
+            className="absolute left-1/2 top-[53%] -translate-x-1/2"
+            initial={false}
+            animate={{ opacity: measured ? 1 : 0, y: measured ? 0 : 6 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="relative w-[128px]">
+              <span className="block h-[1px] w-full bg-white/90" />
+              <span className="absolute -left-[1px] -top-[4px] h-[9px] w-[1.5px] bg-white/90" />
+              <span className="absolute -right-[1px] -top-[4px] h-[9px] w-[1.5px] bg-white/90" />
+              <span className="absolute left-1/2 top-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-black/60 px-2 py-[3px] text-[9px] text-white backdrop-blur">
+                26 cm · true size
+              </span>
+            </div>
+          </motion.div>
+
           {/* Status bar */}
-          <div className="relative flex items-center justify-between px-5 pt-2.5">
-            <span className="text-[11px] font-semibold text-white">9:41</span>
+          <div className="absolute inset-x-0 top-0 flex items-center justify-between px-5 pt-2.5 text-white drop-shadow">
+            <span className="text-[11px] font-semibold">9:41</span>
             <div className="flex items-center gap-1">
-              <span className="h-2 w-3.5 rounded-[2px] border border-white/60" />
-              <span className="h-2 w-1 rounded-sm bg-white/60" />
+              <span className="h-2 w-3.5 rounded-[2px] border border-white/80" />
+              <span className="h-2 w-1 rounded-sm bg-white/80" />
             </div>
           </div>
 
-          {/* Scanning overlay */}
+          {/* Native viewer chrome */}
+          <div className="absolute inset-x-0 top-9 flex items-center justify-between px-4">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/35 backdrop-blur-md">
+              <X className="h-3.5 w-3.5 text-white" />
+            </span>
+            <span className="flex overflow-hidden rounded-full bg-black/35 p-[3px] text-[10.5px] font-medium backdrop-blur-md">
+              <span className="rounded-full bg-white px-3.5 py-[5px] text-black">AR</span>
+              <span className="px-3.5 py-[5px] text-white/85">Object</span>
+            </span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/35 backdrop-blur-md">
+              <Share className="h-3.5 w-3.5 text-white" />
+            </span>
+          </div>
+
+          {/* Coaching card */}
           <motion.div
-            className="absolute inset-x-6 top-[42%] h-[90px]"
-            animate={{ opacity: placed ? 0 : 1 }}
-            transition={{ duration: 0.5 }}
+            className="absolute inset-x-10 top-[36%] flex flex-col items-center rounded-2xl bg-black/45 px-4 py-4 text-center backdrop-blur-md"
+            initial={false}
+            animate={{ opacity: found ? 0 : 1, scale: found ? 0.95 : 1 }}
+            transition={{ duration: 0.4 }}
           >
-            <div
-              className="h-full w-full rounded-[50%] border-2 border-dashed border-cyan/50"
-              style={{ transform: 'rotateX(68deg)' }}
-            />
-            <motion.p
-              className="absolute inset-x-0 -top-10 flex items-center justify-center gap-1.5 text-[11px] text-white/80"
-              animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 1.6, repeat: Infinity }}
-            >
-              <ScanLine className="h-3.5 w-3.5 text-cyan" />
-              Move your phone to find the table
-            </motion.p>
+            <motion.span animate={{ rotate: [-12, 12, -12], x: [-10, 10, -10] }} transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}>
+              <Smartphone className="h-7 w-7 text-white" strokeWidth={1.5} />
+            </motion.span>
+            <p className="mt-2 text-[12px] font-medium text-white">Move your phone</p>
+            <p className="mt-0.5 text-[10px] text-white/70">to find the surface of your table</p>
           </motion.div>
 
-          {/* Shadow under the dish */}
-          <motion.div
-            className="absolute left-1/2 top-[47%] h-[46px] w-[170px] -translate-x-1/2 rounded-[50%] bg-black/55 blur-md"
-            initial={false}
-            animate={{ opacity: placed ? 1 : 0, scale: placed ? 1 : 0.6 }}
-            transition={{ duration: 0.5 }}
-          />
-
-          {/* The dish */}
-          <motion.div
-            className="absolute left-1/2 top-[30%] -translate-x-1/2"
-            initial={false}
-            animate={
-              placed
-                ? { opacity: 1, scale: 1, y: 0 }
-                : { opacity: 0, scale: 0.5, y: -30 }
-            }
-            transition={{ type: 'spring', stiffness: 130, damping: 15 }}
-          >
-            <motion.div
-              animate={reduced || !placed ? {} : { rotateY: 360 }}
-              transition={{ duration: 9, repeat: Infinity, ease: 'linear' }}
-              style={{ transformStyle: 'preserve-3d' }}
-              className="relative h-[150px] w-[180px]"
-            >
-              {/* plate rim */}
-              <span className="absolute bottom-1 left-1/2 h-[42px] w-[180px] -translate-x-1/2 rounded-[50%] bg-gradient-to-b from-white/95 to-white/55" />
-              <span className="absolute bottom-[9px] left-1/2 h-[30px] w-[142px] -translate-x-1/2 rounded-[50%] bg-gradient-to-b from-white/70 to-white/35" />
-              {/* curry */}
-              <span className="absolute bottom-[16px] left-1/2 h-[34px] w-[108px] -translate-x-1/2 rounded-[50%] bg-gradient-to-b from-amber via-[#e4682f] to-rose shadow-[0_0_22px_rgba(251,113,133,0.35)]" />
-              {/* paneer cubes */}
-              <span className="absolute bottom-[32px] left-[58px] h-[18px] w-[20px] rotate-[8deg] rounded-[4px] bg-gradient-to-br from-[#fff4e0] to-[#e9c38c]" />
-              <span className="absolute bottom-[38px] left-[82px] h-[17px] w-[19px] -rotate-[10deg] rounded-[4px] bg-gradient-to-br from-[#fff0d6] to-[#e0b377]" />
-              <span className="absolute bottom-[30px] left-[104px] h-[16px] w-[18px] rotate-[14deg] rounded-[4px] bg-gradient-to-br from-[#fff4e0] to-[#e7bd83]" />
-              {/* coriander */}
-              <span className="absolute bottom-[50px] left-[74px] h-[9px] w-[14px] rounded-[50%] bg-lime/85" />
-              <span className="absolute bottom-[46px] left-[96px] h-[8px] w-[12px] rounded-[50%] bg-lime/70" />
-            </motion.div>
-          </motion.div>
-
-          {/* Rotate hint */}
+          {/* Tap hint */}
           <motion.p
-            className="absolute inset-x-0 top-[62%] text-center text-[10px] text-white/45"
+            className="absolute inset-x-0 top-[27%] text-center text-[10.5px] font-medium text-white drop-shadow"
+            initial={false}
+            animate={{ opacity: found && !placed ? 1 : 0 }}
+          >
+            Tap to place
+          </motion.p>
+
+          {/* Product sheet */}
+          <motion.div
+            className="absolute inset-x-3 bottom-3 rounded-2xl bg-white/92 p-3.5 text-[#15161a] shadow-[0_10px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl"
+            initial={false}
+            animate={{ y: sheet ? 0 : 160, opacity: sheet ? 1 : 0 }}
+            transition={{ type: 'spring', stiffness: 180, damping: 24 }}
+          >
+            <span className="mx-auto mb-2.5 block h-1 w-9 rounded-full bg-black/15" />
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[13.5px] font-semibold tracking-tight">Paneer Tikka Masala</p>
+                <p className="mt-0.5 text-[10px] text-[#5b616d]">Serves 1–2 · 26 cm bowl · shown at true size</p>
+              </div>
+              <span className="text-[13.5px] font-semibold">₹320</span>
+            </div>
+            <div className="mt-2 flex items-center gap-1.5">
+              <span className="flex items-center gap-1 rounded-full bg-[#f3f4f6] px-2 py-[3px] text-[9px]"><Flame className="h-2.5 w-2.5" /> Medium</span>
+              <span className="flex items-center gap-1 rounded-full bg-[#f3f4f6] px-2 py-[3px] text-[9px]"><Leaf className="h-2.5 w-2.5" /> Veg</span>
+              <span className="ml-auto rounded-xl bg-[#15161a] px-3.5 py-[7px] text-[10.5px] font-medium text-white">Add to order</span>
+            </div>
+          </motion.div>
+
+          {/* Pre-sheet hint strip */}
+          <motion.p
+            className="absolute inset-x-0 bottom-6 text-center text-[9.5px] text-white/80 drop-shadow"
             initial={false}
             animate={{ opacity: placed && !sheet ? 1 : 0 }}
           >
-            Drag to turn · pinch to resize
+            Drag to move · pinch to resize
           </motion.p>
-
-          {/* Detail sheet */}
-          <motion.div
-            className="absolute inset-x-0 bottom-0 rounded-t-[22px] border-t border-white/15 bg-black/70 px-5 pb-5 pt-3 backdrop-blur-xl"
-            initial={false}
-            animate={{ y: sheet ? 0 : 230 }}
-            transition={{ type: 'spring', stiffness: 170, damping: 24 }}
-          >
-            <span className="mx-auto mb-3 block h-1 w-9 rounded-full bg-white/25" />
-
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="text-[17px] font-semibold tracking-tight text-white">
-                  Paneer Tikka Masala
-                </h3>
-                <div className="mt-1 flex items-center gap-2">
-                  <span className="flex items-center gap-1 text-[10.5px] text-amber">
-                    <Star className="h-3 w-3" style={{ fill: '#fbbf24' }} />
-                    4.7
-                  </span>
-                  <span className="text-[10.5px] text-white/35">· 184 orders</span>
-                </div>
-              </div>
-              <span className="text-[17px] font-semibold text-white">₹320</span>
-            </div>
-
-            <p className="mt-2 text-[11.5px] leading-snug text-white/55">
-              Charred cottage cheese in a slow-cooked tomato and cashew gravy.
-              Served with two butter rotis.
-            </p>
-
-            <div className="mt-3 flex gap-2">
-              <Tag icon={Flame} label="Medium spice" tint="#fb7185" />
-              <Tag icon={Leaf} label="Vegetarian" tint="#a3e635" />
-              <Tag label="Serves 2" tint="#22d3ee" />
-            </div>
-
-            <div className="mt-4 flex items-center gap-2">
-              <span className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-white py-[11px] text-[12.5px] font-semibold text-black">
-                <Plus className="h-3.5 w-3.5" />
-                Add to order
-              </span>
-              <span className="rounded-xl border border-white/20 px-4 py-[11px] text-[12.5px] text-white/70">
-                Share
-              </span>
-            </div>
-          </motion.div>
         </div>
       </Stage>
     </PhoneFrame>
-  )
-}
-
-function Tag({
-  icon: Icon,
-  label,
-  tint,
-}: {
-  icon?: typeof Flame
-  label: string
-  tint: string
-}) {
-  return (
-    <span
-      className="flex items-center gap-1 rounded-full border px-2 py-[3px] text-[9.5px]"
-      style={{ borderColor: `${tint}40`, color: tint }}
-    >
-      {Icon && <Icon className="h-2.5 w-2.5" />}
-      {label}
-    </span>
   )
 }

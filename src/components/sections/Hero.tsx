@@ -5,6 +5,8 @@ import { SplitText } from '../ui/SplitText'
 import { Typewriter } from '../ui/Typewriter'
 import { Eyebrow } from '../ui/Chip'
 import { EASE } from '../../lib/motion'
+import { SHOW_PITCHES } from '../../content/flags'
+import { projects } from '../../content/projects'
 
 const PHRASES = [
   'impossibly fast.',
@@ -31,7 +33,7 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: EASE, delay: 0.3 }}
         >
-          <Eyebrow>4 products shipped &middot; 3 in the making</Eyebrow>
+          <Eyebrow>{projects.length} projects &middot; websites, 3D and AI</Eyebrow>
         </motion.div>
 
         {/* Two hard lines: the static phrase never wraps, so the typed line
@@ -56,8 +58,8 @@ export function Hero() {
           transition={{ duration: 0.7, ease: EASE, delay: 1.15 }}
           className="mx-auto mt-7 max-w-2xl text-balance-safe text-[15px] leading-relaxed text-muted sm:mt-8 sm:text-lg"
         >
-          Turning sharp ideas into products people love to use. Some are
-          already out in the world — others are still looking for a backer.
+          Turning sharp ideas into products people love to use — websites,
+          3D experiences and AI tools, already out in the world for real businesses.
         </motion.p>
 
         <motion.div
@@ -70,8 +72,8 @@ export function Hero() {
             See the work
             <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </MagneticButton>
-          <MagneticButton href="#pitches" variant="ghost">
-            View the pitches
+          <MagneticButton href={SHOW_PITCHES ? '#pitches' : '#about'} variant="ghost">
+            {SHOW_PITCHES ? 'View the pitches' : 'How we work'}
           </MagneticButton>
         </motion.div>
       </motion.div>

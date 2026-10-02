@@ -3,10 +3,11 @@ import { Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { cn } from '../lib/cn'
 import { EASE } from '../lib/motion'
+import { SHOW_PITCHES } from '../content/flags'
 
 const LINKS = [
   { label: 'Work', href: '/#work' },
-  { label: 'Pitches', href: '/#pitches' },
+  ...(SHOW_PITCHES ? [{ label: 'Pitches', href: '/#pitches' }] : []),
   { label: 'About', href: '/#about' },
 ]
 

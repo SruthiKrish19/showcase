@@ -2,14 +2,10 @@ import { Navigate, useParams } from 'react-router-dom'
 import { getProject, nextProject } from '../content/projects'
 import { DetailHero } from '../components/detail/DetailHero'
 import { MetricRow } from '../components/detail/MetricRow'
-import {
-  DetailSection,
-  StepList,
-} from '../components/detail/DetailSection'
+import { BulletList, DetailSection, StepList } from '../components/detail/DetailSection'
 import { NextUp } from '../components/detail/NextUp'
 import { Chip } from '../components/ui/Chip'
 import { Reveal } from '../components/ui/Reveal'
-import { CoverArt } from '../components/ui/CoverArt'
 import { Demo, isPhoneDemo } from '../components/demos'
 
 export default function WorkDetail() {
@@ -28,6 +24,7 @@ export default function WorkDetail() {
         title={project.title}
         tagline={project.tagline}
         accentKey={project.accent}
+        context={project.context}
         meta={
           <div className="flex flex-wrap items-center gap-x-8 gap-y-4 text-sm">
             <div>
@@ -38,50 +35,48 @@ export default function WorkDetail() {
               <span className="block text-xs text-faint">Role</span>
               <span className="mt-1 block">{project.role}</span>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {project.stack.map((tech) => (
-                <Chip key={tech}>{tech}</Chip>
-              ))}
-            </div>
           </div>
         }
       />
 
       <div className="mx-auto max-w-4xl px-5 sm:px-6">
-        {!project.demo && (
-          <Reveal>
-            <div className="aspect-[16/8] overflow-hidden rounded-3xl border border-white/8">
-              <CoverArt
-                accentKey={project.accent}
-                src={project.cover}
-                alt={project.title}
-              />
-            </div>
-          </Reveal>
-        )}
+        {/* The result leads — a reader on a shared link decides here */}
+        <Reveal>
+          <p className="text-balance-safe text-lg leading-relaxed text-ink sm:text-xl sm:leading-relaxed">
+            {project.outcome}
+          </p>
+        </Reveal>
 
         {project.metrics.length > 0 && (
-          <div className="mt-14">
+          <div className="mt-10">
             <MetricRow metrics={project.metrics} accentKey={project.accent} />
           </div>
         )}
 
         <div className="mt-6">
-          <DetailSection label="The problem">
+          <DetailSection label="What it had to solve">
             <p>{project.problem}</p>
           </DetailSection>
 
-          <DetailSection label="What I did">
+          <DetailSection label="How it was made">
             <StepList items={project.approach} />
           </DetailSection>
 
-          <DetailSection label="The outcome">
-            <p>{project.outcome}</p>
+          <DetailSection label="What you get">
+            <BulletList items={project.deliverables} />
+          </DetailSection>
+
+          <DetailSection label="Built with">
+            <div className="flex flex-wrap gap-2">
+              {project.stack.map((tech) => (
+                <Chip key={tech}>{tech}</Chip>
+              ))}
+            </div>
           </DetailSection>
         </div>
 
         {project.links?.length ? (
-          <Reveal className="border-t border-white/6 py-10">
+          <Reveal className="border-t border-white/6 py-8">
             <div className="flex flex-wrap gap-3">
               {project.links.map((link) => (
                 <a
@@ -96,7 +91,6 @@ export default function WorkDetail() {
           </Reveal>
         ) : null}
 
-        {/* Demo closes the page — the reader has the context by this point */}
         {project.demo && (
           <Reveal className="border-t border-white/6 pt-10">
             <figure>
@@ -105,8 +99,8 @@ export default function WorkDetail() {
                   See it working
                 </h2>
                 <p className="mt-2 text-sm text-muted">
-                  A simulated walkthrough of the product — illustrative, not a
-                  live instance.
+                  A guided walkthrough of the product in use. Business names
+                  and customer details have been changed.
                 </p>
               </figcaption>
               <div
@@ -123,7 +117,7 @@ export default function WorkDetail() {
         )}
       </div>
 
-      <div className="mt-10">
+      <div className="mt-12">
         <NextUp
           to={`/work/${next.slug}`}
           eyebrow="Next project"

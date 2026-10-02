@@ -39,6 +39,13 @@ export const ACCENTS: Record<Accent, AccentStyle> = {
     dot: 'bg-rose',
     gradient: 'from-rose/50 via-rose/10 to-transparent',
   },
+  orange: {
+    hex: '#fb923c',
+    text: 'text-orange',
+    border: 'border-orange/40',
+    dot: 'bg-orange',
+    gradient: 'from-orange/50 via-orange/10 to-transparent',
+  },
   lime: {
     hex: '#a3e635',
     text: 'text-lime',

@@ -1,6 +1,6 @@
 import type { DemoKey } from '../components/demos'
 
-export type Accent = 'violet' | 'cyan' | 'amber' | 'rose' | 'lime'
+export type Accent = 'violet' | 'cyan' | 'amber' | 'rose' | 'lime' | 'orange'
 
 export type Metric = {
   /** Number portion, e.g. 40 — animated as a counter */
@@ -35,9 +35,16 @@ export type Project = {
   links?: Link[]
 
   /* Detail page */
-  problem: string
-  approach: string[]
+  /** One line of orientation — a shared link may be the only page seen. */
+  context: string
+  /** The result, stated first. This is what sells. */
   outcome: string
+  /** What the work had to solve. Kept short. */
+  problem: string
+  /** The craft decisions that produced the result. */
+  approach: string[]
+  /** What the client actually ends up with. */
+  deliverables: string[]
   gallery?: string[]
 }
 
@@ -54,10 +61,12 @@ export type Pitch = {
   category: string
 
   /* Detail page */
+  /** One line of orientation for an investor arriving on a shared link. */
+  context: string
   problem: string
   solution: string
   market: string
-  /** How the product would make money \u2014 described, not costed. */
+  /** How the product would make money — described, not costed. */
   businessModel: string
   /** What exists today. */
   traction: string[]

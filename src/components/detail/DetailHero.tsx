@@ -13,6 +13,8 @@ type Props = {
   tagline: string
   accentKey: Accent
   meta?: ReactNode
+  /** One line of orientation, shown above the title. */
+  context?: string
 }
 
 export function DetailHero({
@@ -22,6 +24,7 @@ export function DetailHero({
   tagline,
   accentKey,
   meta,
+  context,
 }: Props) {
   const a = accent(accentKey)
 
@@ -50,11 +53,22 @@ export function DetailHero({
           </Link>
         </motion.div>
 
+        {context && (
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: EASE, delay: 0.04 }}
+            className="mt-6 max-w-xl text-sm leading-relaxed text-muted"
+          >
+            {context}
+          </motion.p>
+        )}
+
         <motion.h1
           initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
           animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
           transition={{ duration: 0.7, ease: EASE, delay: 0.08 }}
-          className="mt-7 font-display text-[clamp(1.9rem,6.5vw,4.25rem)] font-semibold leading-[1.02] tracking-[-0.03em]"
+          className="mt-3 font-display text-[clamp(1.9rem,6.5vw,4.25rem)] font-semibold leading-[1.02] tracking-[-0.03em]"
         >
           {title}
         </motion.h1>

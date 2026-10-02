@@ -16,7 +16,13 @@ export function MetricRow({
 
   return (
     <Reveal>
-      <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-white/8 bg-white/8 sm:grid-cols-3">
+      <dl className={cn(
+          'grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-white/8 bg-white/8',
+          // Columns follow the count, so two metrics never leave a dead cell
+          metrics.length === 1 && 'sm:grid-cols-1',
+          metrics.length === 2 && 'sm:grid-cols-2',
+          metrics.length >= 3 && 'sm:grid-cols-3',
+        )}>
         {metrics.map((m) => (
           <div key={m.label} className="bg-bg/90 px-5 py-5 sm:px-6 sm:py-7">
             <dd

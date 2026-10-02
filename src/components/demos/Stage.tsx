@@ -36,7 +36,15 @@ export function Stage({ width, height, children }: Props) {
     >
       <div
         className="absolute left-0 top-0 origin-top-left"
-        style={{ width, height, transform: `scale(${scale})`, opacity: scale ? 1 : 0 }}
+        style={{
+          width,
+          height,
+          transform: `scale(${scale})`,
+          opacity: scale ? 1 : 0,
+          fontFamily:
+            'ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+          WebkitFontSmoothing: 'antialiased',
+        }}
       >
         {children}
       </div>

@@ -8,6 +8,8 @@ import type { Pitch } from './types'
 export const pitches: Pitch[] = [
   {
     slug: 'signal',
+    context:
+      'An early-stage SaaS concept — a knowledge assistant for growing companies. Shared here for investors and potential design partners.',
     title: 'Signal',
     tagline:
       'The knowledge layer for growing companies — an assistant that actually knows how the business works.',
@@ -30,6 +32,8 @@ export const pitches: Pitch[] = [
   },
   {
     slug: 'harbor',
+    context:
+      'An early-stage SaaS concept — deployment infrastructure for federated frontends. Shared here for investors and potential co-founders.',
     title: 'Harbor',
     tagline:
       'The deployment control plane for teams running dozens of independently shipped frontends.',
@@ -52,6 +56,8 @@ export const pitches: Pitch[] = [
   },
   {
     slug: 'cadence',
+    context:
+      'An early-stage SaaS concept — operations software for clinical research sites. Shared here for investors and design partners.',
     title: 'Cadence',
     tagline:
       'Clinical trial operations software built for the coordinators who actually run the trials.',

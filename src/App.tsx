@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import WorkDetail from './pages/WorkDetail'
 import PitchDetail from './pages/PitchDetail'
 import NotFound from './pages/NotFound'
+import { SHOW_PITCHES } from './content/flags'
 
 const router = createBrowserRouter([
   {
@@ -11,7 +12,7 @@ const router = createBrowserRouter([
     children: [
       { path: '/', element: <Home /> },
       { path: '/work/:slug', element: <WorkDetail /> },
-      { path: '/pitch/:slug', element: <PitchDetail /> },
+      ...(SHOW_PITCHES ? [{ path: '/pitch/:slug', element: <PitchDetail /> }] : []),
       { path: '*', element: <NotFound /> },
     ],
   },
