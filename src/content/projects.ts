@@ -53,9 +53,9 @@ export const projects: Project[] = [
     slug: 'tabletop-ar',
     title: 'Tabletop AR',
     tagline:
-      'Point the phone at your table and the dish is really there — full size, beside your glass, before you order.',
+      'Open the camera, point it at your table, and the dish appears on it — real size, in the room, before you order.',
     context:
-      'Augmented reality for restaurants: the dish is placed on the guest’s actual table, at actual size, through the phone camera. Opened from a QR code, no app to install. (The sister project, Menu in 3D, shows dishes on screen — this one puts them in the room.)',
+      'Augmented reality for restaurants. The guest opens the phone camera and the dish is placed on their actual table, at actual size, so they can see it in front of them before ordering. This is the camera experience; the sister project, Menu in 3D, is the on-screen one.',
     year: '2025',
     role: 'Design and build, end to end',
     stack: ['React', 'Three.js', 'WebXR', 'GLB / USDZ', 'AR Quick Look'],
@@ -63,31 +63,32 @@ export const projects: Project[] = [
     demo: 'ar-menu',
     metrics: [],
     outcome:
-      'A guest scans the code on the table, and the dish appears on the table in front of them at its real size — turnable, inspectable, with the price and portion attached. People show it to each other across the table. It is the rare restaurant upgrade that guests actually enjoy using.',
+      'A guest scans the QR code, the camera opens, and the dish sits on the table in front of them at its real size, next to their own glass and cutlery. They can walk around it, judge the portion against the plate they will actually get, and add it to the order from the same screen. People pass the phone around the table to show each other.',
     problem:
-      'A menu asks someone to spend money on something they have never seen. Photographs help, but they flatten portion size and never answer the question that actually causes hesitation: what will arrive at the table, and is it enough for two.',
+      'A photo on a menu cannot answer the question that actually causes hesitation: how big is it, and is it enough for two. Even a 3D model on a screen has no sense of scale. Only seeing the dish on the table, beside things whose size you already know, settles it.',
     approach: [
-      'Model each dish as a real 3D object rather than a photograph, so size, portion and plating are all judgeable from any angle.',
-      'Deliver it through the phone’s own built-in AR. No app, no download, no account — a QR code on the table and it opens.',
+      'Capture each dish as a 3D model and deliver it through the phone’s own built-in AR — Quick Look on iPhone, Scene Viewer on Android — so there is nothing to install.',
+      'Anchor the dish to the detected table surface at true scale, so the portion reads honestly against the guest’s own glass and plate.',
       'Keep every model small enough to load in a couple of seconds over restaurant wifi, which is the constraint that kills most AR projects.',
-      'Attach the commerce to the model: price, portion, spice level, dietary tags, and an add-to-order action in the same sheet.',
+      'Attach the commerce to the placed dish: price, portion, spice level, dietary tags and add-to-order in the same sheet.',
       'Give staff a plain editor for prices and availability, so nobody has to touch a 3D asset to change a number.',
     ],
     deliverables: [
-      '3D models of each dish, optimised for mobile',
-      'A web AR experience that works on iOS and Android with no app',
+      '3D models of each dish, exported for iOS (USDZ) and Android (GLB)',
+      'A camera-based web AR experience with no app to install',
+      'True-scale placement on the table, with price and portion attached',
       'Printed QR codes for tables and takeaway',
       'A staff-facing editor for prices, tags and availability',
-      'Analytics on which dishes guests actually look at',
+      'Analytics on which dishes guests actually place',
     ],
   },
   {
     slug: 'menu-in-3d',
     title: 'Menu in 3D',
     tagline:
-      'Every dish on the menu as a model guests can turn in their hand before they order.',
+      'A menu where every dish is a 3D model on the guest’s phone — turn it, zoom in, see the plating from every side.',
     context:
-      'A digital menu where each dish turns on screen as a 3D model, like a product viewer. Opened from a QR code, no app and no camera needed. (The sister project, Tabletop AR, places those same dishes on the guest’s real table.)',
+      'A digital menu for phones where each dish is shown as a 3D model on screen, like a product viewer. No camera, no app: it opens from a QR code in the browser. This is the on-screen experience; the sister project, Tabletop AR, uses the camera to put the dish on the table.',
     year: '2025',
     role: 'Design and build, end to end',
     stack: ['React', 'Three.js', 'GLB', 'Draco compression', 'Vite'],
@@ -95,19 +96,19 @@ export const projects: Project[] = [
     demo: 'menu-3d',
     metrics: [],
     outcome:
-      'The menu stops being a list of names and becomes something guests actually explore. Each dish turns on a plate in front of them with its portion, price and spice level attached, so the question that normally gets asked across the table — what does that actually look like — is answered before anyone calls a waiter.',
+      'The menu stops being a list of names and becomes something guests actually explore on their phone. Each dish turns on screen with its portion, price and spice level beside it, so the question that normally gets asked across the table — what does that actually look like — is answered before anyone calls a waiter.',
     problem:
-      'Photographs on a menu are taken once, lit perfectly, and cropped to hide the portion size. Guests have learned not to trust them, so they fall back on ordering the two dishes they already know. The rest of the menu might as well not be there.',
+      'Photographs on a menu are taken once, lit perfectly, and cropped to hide the plating. Guests have learned not to trust them, so they fall back on ordering the two dishes they already know. The rest of the menu might as well not be there.',
     approach: [
-      'Model each dish as a real 3D object, lit so it reads honestly rather than flatteringly.',
-      'Build a turntable viewer that works with one thumb — drag to turn, pinch to zoom — because a guest is holding a phone over a table, not using two hands.',
-      'Compress every model hard, so a dish loads in a couple of seconds on restaurant wifi. This is the constraint that decides whether a 3D menu is used or abandoned.',
-      'Attach the commerce to the model: price, portion, spice level, dietary tags and add-to-order all live beside the dish.',
-      'Open the whole thing from a QR code on the table. No install, no account, no friction between curiosity and the menu.',
+      'Capture each dish as a 3D model, lit so it reads honestly rather than flatteringly.',
+      'Build a one-thumb viewer for the phone screen — drag to turn, pinch to zoom — because guests browse a menu one-handed.',
+      'Compress every model hard, so a dish loads in a couple of seconds on restaurant wifi. This decides whether a 3D menu is used or abandoned.',
+      'Keep the whole menu around the viewer: categories, search, dietary tags, price and add-to-order all live beside the dish.',
+      'Open it from a QR code on the table. No install, no account, no camera permission.',
     ],
     deliverables: [
       '3D models of each dish, optimised for mobile',
-      'A one-thumb turntable viewer that runs in the browser',
+      'A one-thumb 3D viewer that runs in the phone browser',
       'Menu structure with categories, tags and pricing',
       'QR codes for tables and takeaway',
       'A staff editor for prices and availability',
