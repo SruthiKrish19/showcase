@@ -13,27 +13,27 @@ export const pitches: Pitch[] = [
     slug: 'ciniops',
     title: 'Ciniops',
     tagline:
-      'Production operations for film sets — cash, crew and call sheets tracked on a phone, not chased over WhatsApp.',
+      'Tag the script once — shot lists, call sheets, cash and briefs flow from it. Nobody on the receiving end creates an account.',
     stage: 'concept',
     accent: 'rose',
     category: 'Vertical SaaS · Film production',
     demo: 'ciniops',
     problem:
-      'A film set runs on cash bundles, handwritten vouchers and a call sheet rebuilt every night for four WhatsApp groups. The producer sees overspend after the schedule has slipped. The AD never knows who read the latest version.',
+      'A film set runs on a script nobody can search, cash bundles with handwritten vouchers, and a call sheet rebuilt every night for four WhatsApp groups. The producer sees overspend late. The AD never knows who read v3. The director won’t share the script because it leaks.',
     solution:
-      'Snap the bill when you spend. Approve from the set. Export to Tally. Send one call sheet link per person and see who confirmed. Crew never create an account.',
+      'Tag the script once and shot lists, call sheets, cash and briefs flow from it. Spenders, cast and crew get a link, never an account. Money is in paise, GST, TDS and Tally. Nothing is shared wider than it needs to be.',
 
     slides: [
       {
         kind: 'title',
         eyebrow: 'Concept · Vertical SaaS · Film production',
         title: 'Ciniops',
-        sub: 'Production operations for film sets, on a phone.',
+        sub: 'Tag the script once. Everything on set flows from it.',
       },
       {
         kind: 'statement',
-        lead: 'Every department runs on notes, calls and WhatsApp.',
-        punch: 'Cash. Crew. Calls. Tracked, not chased.',
+        lead: 'Shot lists, call sheets, cash, briefs —',
+        punch: 'one tagged script. No logins for the people receiving them.',
       },
       {
         kind: 'quotes',
@@ -46,53 +46,46 @@ export const pitches: Pitch[] = [
           },
           {
             role: '1st AD',
-            quote: 'v2, v3 at 11 pm. Next morning people are at the old location.',
+            quote: 'I rebuild the call sheet every night for four groups. Nobody knows who read it.',
           },
           {
             role: 'Director',
-            quote: 'I won’t WhatsApp the script to anyone. It leaks.',
+            quote: 'My shot division is a photo of my notebook. And the script leaves my hands for no one.',
           },
         ],
       },
       {
         kind: 'verbs',
-        eyebrow: 'The product',
-        title: 'One app. Four verbs.',
+        eyebrow: 'What we sell',
+        title: 'Four things nobody else does.',
         verbs: [
-          { verb: 'Snap', line: 'the bill, the moment you spend' },
-          { verb: 'Approve', line: 'from the set, on a phone' },
-          { verb: 'Export', line: 'straight into Tally' },
-          { verb: 'Dispatch', line: 'one call sheet link each — see who confirmed' },
+          { verb: 'Tag', line: 'the script once — scenes, props, cast and shoot days follow' },
+          { verb: 'Pay', line: 'in paise, lakh and crore — GST, TDS, Tally with your own ledger names' },
+          { verb: 'Book', line: 'cast dates on a link — no login, overlap at a glance' },
+          { verb: 'Brief', line: 'a slice of the script behind a private link — never the whole' },
         ],
       },
       {
         kind: 'cards',
-        eyebrow: 'First build',
-        title: 'Two modules that finish the loop.',
+        eyebrow: 'First round',
+        title: 'Twelve screens, one spine.',
         cards: [
-          {
-            tag: 'A',
-            title: 'On-set cash',
-            body: 'Wallets, bill photos, approvals, live spend, Tally export.',
-          },
-          {
-            tag: 'B',
-            title: 'Call sheets',
-            body: 'Personal links. Opened and confirmed, per name.',
-          },
-          {
-            tag: 'C',
-            title: 'Shot book',
-            body: 'Scenes, shots, done on the floor.',
-            dim: true,
-          },
-          {
-            tag: 'D',
-            title: 'Private briefs',
-            body: 'A song situation to the composer — never the script.',
-            dim: true,
-          },
+          { tag: 'A', title: 'Script & breakdown', body: 'Import, tag, attach scenes to shoot days.' },
+          { tag: 'B', title: 'Cash on set', body: 'Wallets, one-page capture, approval bands, settle at wrap.' },
+          { tag: 'C', title: 'Call sheets & links', body: 'Personal links, confirm tracking, calendar, directions.' },
+          { tag: 'D', title: 'Inbox', body: 'What needs my action, per role. Empties as I act.' },
         ],
+      },
+      {
+        kind: 'steps',
+        eyebrow: 'The leak fear',
+        title: 'It sells the briefs. It blocks the script.',
+        steps: [
+          'Nothing leaves without a named, logged, revocable link.',
+          'Briefs are view-only and watermarked. The script is never attached.',
+          'Per-production isolation, data in India, delete on request.',
+        ],
+        close: 'The answer is on the first screen, not in a policy.',
       },
       {
         kind: 'cards',
@@ -101,20 +94,20 @@ export const pitches: Pitch[] = [
         cards: [
           { tag: 'Buyer', title: 'Producer', body: 'The money story.' },
           { tag: 'Champion', title: 'Line producer', body: 'The pain story.' },
-          { tag: 'Second door', title: 'Director', body: 'Leak-proof briefs.' },
-          { tag: 'Daily users', title: 'Crew', body: 'Never log in. Form or link.' },
+          { tag: 'Second door', title: 'Director', body: 'Tagged script, leak-proof briefs.' },
+          { tag: 'Receivers', title: 'Cast & crew', body: 'Never log in. A link.' },
         ],
       },
       {
         kind: 'steps',
         eyebrow: 'Why nothing fits',
-        title: 'Built elsewhere, for someone else.',
+        title: 'We compete with free.',
         steps: [
+          'WhatsApp and Sheets cost nothing — and know nothing about a scene.',
+          'Studiovity does breakdown and call sheets, behind a login, without the cash.',
           'Western tools: dollars, US unions, a laptop with signal.',
-          'Indian tools: stop at pre-production planning.',
-          'Expense apps: don’t know a shoot day or a wallet.',
         ],
-        close: 'So the set still runs on Excel and WhatsApp.',
+        close: 'Our edge: no-login links, India-native cash, the script as the single source.',
       },
       {
         kind: 'statement',
@@ -125,11 +118,11 @@ export const pitches: Pitch[] = [
       {
         kind: 'steps',
         eyebrow: 'The plan',
-        title: 'Build. Pilot. Measure.',
+        title: 'Mock. Build. Pilot.',
         steps: [
-          'Ship cash and call sheets end to end — on a phone, from a tea shop.',
-          'Two or three free pilots, one schedule each. Chennai and Hyderabad.',
-          'Measure, collect the quotes, ask: would you pay for this?',
+          'Twelve mock-up screens on fixture data. The team picks what survives.',
+          'Build the first round end to end and put it on a phone.',
+          'Two or three free pilots. Measure. Ask: would you pay for this?',
         ],
       },
       {
