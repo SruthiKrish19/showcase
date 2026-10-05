@@ -6,7 +6,7 @@ import { LmsDemo } from './LmsDemo'
 import { FormFillDemo } from './FormFillDemo'
 import { EcommerceDemo } from './EcommerceDemo'
 import { Menu3DDemo } from './Menu3DDemo'
-import { FilmOpsDemo } from './FilmOpsDemo'
+import { CiniopsDemo } from './CiniopsDemo'
 
 export type DemoKey =
   | 'sites'
@@ -15,7 +15,7 @@ export type DemoKey =
   | 'lms'
   | 'form-fill'
   | 'ecommerce'
-  | 'film-ops'
+  | 'ciniops'
 
 const REGISTRY: Record<DemoKey, ComponentType> = {
   sites: SitesDemo,
@@ -24,12 +24,12 @@ const REGISTRY: Record<DemoKey, ComponentType> = {
   lms: LmsDemo,
   'form-fill': FormFillDemo,
   ecommerce: EcommerceDemo,
-  'film-ops': FilmOpsDemo,
+  ciniops: CiniopsDemo,
 }
 
 /** Phone-shaped demos need a narrower stage than the browser ones. */
 export const isPhoneDemo = (key: DemoKey) =>
-  key === 'ar-menu' || key === 'menu-3d' || key === 'film-ops'
+  key === 'ar-menu' || key === 'menu-3d' || key === 'ciniops'
 
 /**
  * Mounts a demo once it is near the viewport, so a page with several of them

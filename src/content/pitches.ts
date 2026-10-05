@@ -10,14 +10,14 @@ import type { Pitch } from './types'
  */
 export const pitches: Pitch[] = [
   {
-    slug: 'film-ops',
-    title: 'Film Ops',
+    slug: 'ciniops',
+    title: 'Ciniops',
     tagline:
       'Production operations for film sets — cash, crew and call sheets tracked on a phone, not chased over WhatsApp.',
     stage: 'concept',
     accent: 'rose',
     category: 'Vertical SaaS · Film production',
-    demo: 'film-ops',
+    demo: 'ciniops',
     problem:
       'A film set runs on cash bundles, handwritten vouchers and a call sheet rebuilt every night for four WhatsApp groups. The producer sees overspend after the schedule has slipped. The AD never knows who read the latest version.',
     solution:
@@ -27,9 +27,8 @@ export const pitches: Pitch[] = [
       {
         kind: 'title',
         eyebrow: 'Concept · Vertical SaaS · Film production',
-        title: 'Film Ops',
+        title: 'Ciniops',
         sub: 'Production operations for film sets, on a phone.',
-        note: 'Working name',
       },
       {
         kind: 'statement',
