@@ -85,7 +85,7 @@ export default function PitchDemo() {
           <div role="tablist" aria-label="What to watch" className="inline-flex rounded-full border border-white/10 bg-white/[0.03] p-1">
             {(
               [
-                ['film', 'Film · 15s'],
+                ['film', 'Film · 32s'],
                 ['walkthrough', 'Product walkthrough'],
               ] as const
             ).map(([key, label]) => (

@@ -19,7 +19,41 @@ const W = 960
 const H = 540
 const CX = 480
 const CY = 270
-const DURATION = 15
+
+/**
+ * The film is authored on a 15-second story clock, then played on a longer
+ * real clock. The warp stretches the moments with something to read — the
+ * questions, the tags, the tiles, the links, the name — and leaves the
+ * quick ones (implode, pops, fly-outs) nearly at their authored speed.
+ * Pairs of [real seconds, story seconds].
+ */
+const STORY = 15
+const WARP: [number, number][] = [
+  [0, 0],
+  [3.5, 2.2], // Notes. Calls. WhatsApp.
+  [8.5, 4.3], // the pile-up and the three questions
+  [9.4, 5.0], // implode — kept quick
+  [14.5, 7.5], // the script lands and gets tagged
+  [16.5, 8.3], // hold on "311 items tagged"
+  [18.6, 9.6], // tiles fly out
+  [23, 11.35], // tiles at work
+  [28, 13.3], // links reach six people
+  [32, 15], // the name
+]
+const LENGTH = WARP[WARP.length - 1][0]
+
+/** Piecewise-linear lookup through WARP, in either direction. */
+function lookup(v: number, from: 0 | 1) {
+  const to = from === 0 ? 1 : 0
+  for (let i = 1; i < WARP.length; i++) {
+    const a = WARP[i - 1]
+    const b = WARP[i]
+    if (v <= b[from]) return mix(a[to], b[to], (v - a[from]) / (b[from] - a[from]))
+  }
+  return WARP[WARP.length - 1][to]
+}
+const toStory = (real: number) => lookup(clamp(real, 0, LENGTH), 0)
+const toReal = (story: number) => lookup(clamp(story, 0, STORY), 1)
 
 const INK = '#ededf2'
 const ROSE = '#fb7185'
@@ -45,14 +79,15 @@ const CHAPTERS = [
 ]
 
 /**
- * Ciniops in fifteen seconds: the chaos of a set today collapses into one
+ * Ciniops in half a minute: the chaos of a set today collapses into one
  * tagged script, everything flows out of it, it reaches people as links,
  * and resolves into the name. Every element is a pure function of `t`, so
  * the viewer can scrub, pause and jump chapters; the pointer adds parallax.
  */
 export function CiniopsFilm() {
-  const tl = useTimeline(DURATION)
-  const { t, px, py } = tl.frame
+  const tl = useTimeline(LENGTH, 2.2)
+  const { px, py } = tl.frame
+  const t = toStory(tl.frame.t)
 
   return (
     <div>
@@ -88,7 +123,7 @@ export function CiniopsFilm() {
             <Ring t={t} at={13.85} color={CYAN} size={420} />
             <Layer d={5} px={px} py={py}><Finale t={t} /></Layer>
 
-            {!tl.playing && t < DURATION && (
+            {!tl.playing && tl.frame.t < LENGTH && (
               <span className="absolute right-4 top-4 flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-[12px] text-white/80 backdrop-blur">
                 <Pause className="h-3 w-3" /> Paused · click to play
               </span>
@@ -856,14 +891,15 @@ function Finale({ t }: { t: number }) {
 function Controls({ tl }: { tl: Timeline }) {
   const { t } = tl.frame
   const track = useRef<HTMLDivElement>(null)
-  const ended = t >= DURATION
-  const current = CHAPTERS.reduce((acc, c, i) => (t >= c.at ? i : acc), 0)
+  const ended = t >= LENGTH
+  const chapters = CHAPTERS.map((c) => ({ ...c, at: toReal(c.at) }))
+  const current = chapters.reduce((acc, c, i) => (t >= c.at ? i : acc), 0)
 
   const seekAt = (clientX: number) => {
     const el = track.current
     if (!el) return
     const r = el.getBoundingClientRect()
-    tl.seek(((clientX - r.left) / r.width) * DURATION)
+    tl.seek(((clientX - r.left) / r.width) * LENGTH)
   }
 
   return (
@@ -889,7 +925,7 @@ function Controls({ tl }: { tl: Timeline }) {
           tabIndex={0}
           aria-label="Film timeline"
           aria-valuemin={0}
-          aria-valuemax={DURATION}
+          aria-valuemax={LENGTH}
           aria-valuenow={Number(t.toFixed(1))}
           className="relative h-5 cursor-pointer touch-none"
           onPointerDown={(e) => {
@@ -906,24 +942,24 @@ function Controls({ tl }: { tl: Timeline }) {
           <div className="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-white/10" />
           <div
             className="absolute left-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full"
-            style={{ width: `${(t / DURATION) * 100}%`, background: `linear-gradient(90deg, ${VIOLET}, ${CYAN}, ${ROSE})` }}
+            style={{ width: `${(t / LENGTH) * 100}%`, background: `linear-gradient(90deg, ${VIOLET}, ${CYAN}, ${ROSE})` }}
           />
-          {CHAPTERS.slice(1).map((c) => (
+          {chapters.slice(1).map((c) => (
             <span
               key={c.label}
               className="absolute top-1/2 h-2 w-px -translate-y-1/2 bg-white/30"
-              style={{ left: `${(c.at / DURATION) * 100}%` }}
+              style={{ left: `${(c.at / LENGTH) * 100}%` }}
             />
           ))}
           <span
             className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,.5)]"
-            style={{ left: `${(t / DURATION) * 100}%` }}
+            style={{ left: `${(t / LENGTH) * 100}%` }}
           />
         </div>
 
         {/* Chapters — click to jump */}
         <div className="relative mt-1 hidden h-4 sm:block">
-          {CHAPTERS.map((c, i) => (
+          {chapters.map((c, i) => (
             <button
               key={c.label}
               onClick={() => tl.seek(c.at)}
@@ -931,7 +967,7 @@ function Controls({ tl }: { tl: Timeline }) {
                 'absolute whitespace-nowrap text-[11px] transition-colors',
                 i === current ? 'text-ink' : 'text-faint hover:text-muted',
               )}
-              style={{ left: `${(c.at / DURATION) * 100}%` }}
+              style={{ left: `${(c.at / LENGTH) * 100}%` }}
             >
               {c.label}
             </button>
@@ -940,7 +976,7 @@ function Controls({ tl }: { tl: Timeline }) {
       </div>
 
       <span className="shrink-0 font-display text-xs tabular-nums text-faint">
-        {t.toFixed(1)} / {DURATION}.0s
+        {t.toFixed(1)} / {LENGTH}.0s
       </span>
     </div>
   )
