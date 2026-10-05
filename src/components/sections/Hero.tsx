@@ -6,6 +6,7 @@ import { Typewriter } from '../ui/Typewriter'
 import { Eyebrow } from '../ui/Chip'
 import { EASE } from '../../lib/motion'
 import { SHOW_PITCHES } from '../../content/flags'
+import { pitches } from '../../content/pitches'
 import { projects } from '../../content/projects'
 
 const PHRASES = [
@@ -73,7 +74,11 @@ export function Hero() {
             <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </MagneticButton>
           <MagneticButton href={SHOW_PITCHES ? '#pitches' : '#about'} variant="ghost">
-            {SHOW_PITCHES ? 'View the pitches' : 'How we work'}
+            {SHOW_PITCHES
+              ? pitches.length === 1
+                ? 'View the pitch'
+                : 'View the pitches'
+              : 'How we work'}
           </MagneticButton>
         </motion.div>
       </motion.div>
