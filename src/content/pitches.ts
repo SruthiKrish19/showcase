@@ -144,8 +144,3 @@ export const pitches: Pitch[] = [
 ]
 
 export const getPitch = (slug?: string) => pitches.find((p) => p.slug === slug)
-
-export const nextPitch = (slug: string) => {
-  const i = pitches.findIndex((p) => p.slug === slug)
-  return pitches[(i + 1) % pitches.length]
-}

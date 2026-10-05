@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion, type TapInfo } from 'framer-motion'
 import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react'
 import type { Accent, Pitch, Slide } from '../../content/types'
 import { accent } from '../../lib/accent'
@@ -57,9 +57,19 @@ export function PitchDeck({ pitch }: { pitch: Pitch }) {
       reduced ? { opacity: 0 } : { opacity: 0, x: -48 * d, filter: 'blur(8px)' },
   }
 
+  // Tap right to advance, left to go back — the story pattern every phone
+  // user already knows. Framer only fires onTap when the pointer did not
+  // drag, so a swipe never doubles as a tap.
+  const onTap = (e: MouseEvent | TouchEvent | PointerEvent, info: TapInfo) => {
+    if ((e.target as HTMLElement).closest('button, a')) return
+    goTo(info.point.x < window.innerWidth * 0.3 ? index - 1 : index + 1)
+  }
+
   return (
+    // Fixed to the viewport: the page never scrolls behind a deck. A slide
+    // taller than the screen scrolls inside its own region instead.
     <section
-      className="relative flex min-h-[100svh] flex-col px-5 pt-24 pb-6 sm:px-6 sm:pt-28 sm:pb-8"
+      className="fixed inset-0 z-40 flex flex-col px-5 pt-20 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-6 sm:pt-28 sm:pb-8"
       aria-roledescription="carousel"
       aria-label={`${pitch.title} pitch deck`}
     >
@@ -107,8 +117,10 @@ export function PitchDeck({ pitch }: { pitch: Pitch }) {
         ))}
       </div>
 
-      {/* The slide */}
-      <div className="relative mx-auto flex w-full max-w-5xl items-start overflow-hidden sm:flex-1 sm:items-center">
+      {/* The slide — anchored low on a phone like a story, centred on desktop.
+          min-h-0 lets the region shrink and scroll instead of pushing the
+          bars off screen. */}
+      <div className="relative mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <AnimatePresence mode="wait" custom={dir} initial={false}>
           <motion.div
             key={index}
@@ -125,20 +137,23 @@ export function PitchDeck({ pitch }: { pitch: Pitch }) {
               if (info.offset.x < -SWIPE) goTo(index + 1)
               if (info.offset.x > SWIPE) goTo(index - 1)
             }}
-            className="w-full cursor-grab pt-8 pb-10 active:cursor-grabbing sm:py-12"
+            onTap={onTap}
+            className="mt-auto w-full cursor-pointer py-6 select-none sm:my-auto sm:cursor-grab sm:py-12 sm:active:cursor-grabbing"
           >
             <SlideView slide={slides[index]} pitch={pitch} accentKey={pitch.accent} />
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Bottom bar */}
+      {/* Bottom bar — a hint on phones, arrows on desktop */}
       <div className="relative mx-auto flex w-full max-w-5xl items-center justify-between">
         <span className="text-xs text-faint">
-          <span className="sm:hidden">Swipe or tap the arrows</span>
-          <span className="hidden sm:inline">Arrow keys, swipe, or tap the arrows</span>
+          <span className="sm:hidden">
+            {index === 0 ? 'Tap to continue' : `${last - index} to go`}
+          </span>
+          <span className="hidden sm:inline">Arrow keys, click, or swipe</span>
         </span>
-        <div className="flex gap-2">
+        <div className="hidden gap-2 sm:flex">
           <ArrowButton label="Previous slide" onClick={() => goTo(index - 1)} disabled={index === 0}>
             <ArrowLeft className="h-4 w-4" />
           </ArrowButton>
