@@ -50,38 +50,29 @@ export type Project = {
 
 export type Stage = 'concept' | 'prototype' | 'pilot' | 'building'
 
-/**
- * A plain stat tile. Text, not a counter, so "0" and "2–3" read exactly as
- * written and nothing gets animated into looking like market data.
- */
-export type Fact = {
-  value: string
-  label: string
-}
-
 /** A persona speaking in their own words. */
 export type Voice = {
   role: string
   quote: string
 }
 
-/** Where a module sits in the build order. */
-export type ModuleStatus = 'first' | 'next' | 'roadmap'
-
-export type PitchModule = {
-  /** Short index shown on the card, e.g. "A" */
-  key: string
-  name: string
-  /** Who uses it */
-  who: string
-  summary: string
-  status: ModuleStatus
-}
-
-export type Objection = {
-  objection: string
-  answer: string
-}
+/**
+ * One screen of the deck. One idea each, a handful of words — the deck is
+ * read standing up, not studied.
+ */
+export type Slide =
+  | { kind: 'title'; eyebrow: string; title: string; sub: string; note?: string }
+  | { kind: 'statement'; eyebrow?: string; lead?: string; punch: string; note?: string }
+  | { kind: 'quotes'; eyebrow: string; title: string; quotes: Voice[] }
+  | { kind: 'verbs'; eyebrow: string; title: string; verbs: { verb: string; line: string }[] }
+  | {
+      kind: 'cards'
+      eyebrow: string
+      title: string
+      cards: { tag: string; title: string; body: string; dim?: boolean }[]
+    }
+  | { kind: 'steps'; eyebrow: string; title: string; steps: string[]; close?: string }
+  | { kind: 'ask'; title: string; body: string; cta: string; href: string }
 
 /** A SaaS product idea. */
 export type Pitch = {
@@ -92,35 +83,9 @@ export type Pitch = {
   accent: Accent
   /** Category line, e.g. "B2B SaaS \u00b7 Developer tools" */
   category: string
-
-  /* Detail page */
-  /** One line of orientation for an investor arriving on a shared link. */
-  context: string
+  /** Shown on the landing card. Two or three sentences each, no more. */
   problem: string
   solution: string
-  market: string
-  /** How the product would make money — described, not costed. */
-  businessModel: string
-  /** What exists today. */
-  traction: string[]
-
-  /* Presentation blocks — all optional; the page skips any that are absent. */
-  /** The public one-liner, split so the second half can carry the accent. */
-  promise?: { lead: string; punch: string }
-  /** Structural facts about the product. Never market figures. */
-  facts?: Fact[]
-  /** The problem in the users' own words. */
-  voices?: Voice[]
-  /** The public verbs, e.g. "Snap · Approve · Export · Dispatch". */
-  verbs?: string[]
-  modules?: PitchModule[]
-  /** What comes after the modules, as chips. */
-  roadmap?: string[]
-  /** Why existing tools do not fit. */
-  landscape?: string
-  /** What a buyer will say, and the answer. */
-  objections?: Objection[]
-  /** The route from here to a paying customer, as steps. */
-  plan?: string[]
-  ask?: { title: string; body: string }
+  /** The deck. */
+  slides: Slide[]
 }

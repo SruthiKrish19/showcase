@@ -233,7 +233,7 @@ function Slide({
               a.border,
             )}
           >
-            Read the pitch
+            Open the deck
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         </div>
