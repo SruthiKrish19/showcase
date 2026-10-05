@@ -88,4 +88,6 @@ export type Pitch = {
   solution: string
   /** The deck. */
   slides: Slide[]
+  /** Simulated walkthrough shown full screen at /pitch/:slug/demo. */
+  demo?: DemoKey
 }

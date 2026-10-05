@@ -17,6 +17,7 @@ export const pitches: Pitch[] = [
     stage: 'concept',
     accent: 'rose',
     category: 'Vertical SaaS · Film production',
+    demo: 'film-ops',
     problem:
       'A film set runs on cash bundles, handwritten vouchers and a call sheet rebuilt every night for four WhatsApp groups. The producer sees overspend after the schedule has slipped. The AD never knows who read the latest version.',
     solution:

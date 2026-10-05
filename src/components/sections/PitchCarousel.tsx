@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ArrowUpRight, Play } from 'lucide-react'
 import { pitches } from '../../content/pitches'
 import type { Pitch, Stage } from '../../content/types'
 import { accent } from '../../lib/accent'
@@ -224,7 +224,7 @@ function Slide({
           <Block label="Solution" body={pitch.solution} />
         </div>
 
-        <div className="relative mt-8">
+        <div className="relative mt-8 flex flex-wrap gap-3">
           <Link
             to={`/pitch/${pitch.slug}`}
             className={cn(
@@ -236,6 +236,15 @@ function Slide({
             Open the deck
             <ArrowUpRight className="h-4 w-4" />
           </Link>
+          {pitch.demo && (
+            <Link
+              to={`/pitch/${pitch.slug}/demo`}
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 px-5 py-2.5 text-sm font-medium text-muted transition-colors duration-300 hover:border-white/25 hover:bg-white/5 hover:text-ink"
+            >
+              <Play className="h-3.5 w-3.5 fill-current" />
+              Watch the demo
+            </Link>
+          )}
         </div>
       </div>
     </article>
