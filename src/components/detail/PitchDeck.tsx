@@ -108,7 +108,7 @@ export function PitchDeck({ pitch }: { pitch: Pitch }) {
       </div>
 
       {/* The slide */}
-      <div className="relative mx-auto flex w-full max-w-5xl flex-1 items-center overflow-hidden">
+      <div className="relative mx-auto flex w-full max-w-5xl items-start overflow-hidden sm:flex-1 sm:items-center">
         <AnimatePresence mode="wait" custom={dir} initial={false}>
           <motion.div
             key={index}
@@ -125,7 +125,7 @@ export function PitchDeck({ pitch }: { pitch: Pitch }) {
               if (info.offset.x < -SWIPE) goTo(index + 1)
               if (info.offset.x > SWIPE) goTo(index - 1)
             }}
-            className="w-full cursor-grab py-8 active:cursor-grabbing sm:py-12"
+            className="w-full cursor-grab pt-8 pb-10 active:cursor-grabbing sm:py-12"
           >
             <SlideView slide={slides[index]} pitch={pitch} accentKey={pitch.accent} />
           </motion.div>
@@ -134,10 +134,11 @@ export function PitchDeck({ pitch }: { pitch: Pitch }) {
 
       {/* Bottom bar */}
       <div className="relative mx-auto flex w-full max-w-5xl items-center justify-between">
-        <span className="hidden text-xs text-faint sm:block">
-          Arrow keys, swipe, or tap the arrows
+        <span className="text-xs text-faint">
+          <span className="sm:hidden">Swipe or tap the arrows</span>
+          <span className="hidden sm:inline">Arrow keys, swipe, or tap the arrows</span>
         </span>
-        <div className="ml-auto flex gap-2">
+        <div className="flex gap-2">
           <ArrowButton label="Previous slide" onClick={() => goTo(index - 1)} disabled={index === 0}>
             <ArrowLeft className="h-4 w-4" />
           </ArrowButton>
@@ -184,7 +185,7 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
 /** Slide headline — the same size everywhere so the deck has one voice. */
 function Title({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="mt-4 max-w-3xl text-balance-safe font-display text-[clamp(1.75rem,6vw,3.5rem)] font-semibold leading-[1.05] tracking-[-0.03em]">
+    <h2 className="mt-4 max-w-3xl text-balance-safe font-display text-[clamp(2.1rem,8.5vw,3.5rem)] font-semibold leading-[1.05] tracking-[-0.03em]">
       {children}
     </h2>
   )
@@ -209,7 +210,7 @@ function SlideView({
             <StageBadge stage={pitch.stage} />
             <Eyebrow>{slide.eyebrow}</Eyebrow>
           </div>
-          <h1 className="mt-6 font-display text-[clamp(3rem,13vw,8rem)] font-semibold leading-[0.95] tracking-[-0.04em]">
+          <h1 className="mt-6 font-display text-[clamp(3.75rem,17vw,8rem)] font-semibold leading-[0.95] tracking-[-0.04em]">
             {slide.title}
           </h1>
           <p className="mt-6 max-w-xl text-balance-safe text-lg leading-relaxed text-muted sm:text-2xl">
@@ -223,7 +224,7 @@ function SlideView({
       return (
         <div>
           {slide.eyebrow && <Eyebrow>{slide.eyebrow}</Eyebrow>}
-          <p className="mt-4 max-w-4xl text-balance-safe font-display text-[clamp(1.9rem,6.5vw,4.5rem)] font-semibold leading-[1.05] tracking-[-0.03em]">
+          <p className="mt-4 max-w-4xl text-balance-safe font-display text-[clamp(2.4rem,9.5vw,4.5rem)] font-semibold leading-[1.05] tracking-[-0.03em]">
             {slide.lead && <span className="text-muted">{slide.lead} </span>}
             <span className="gradient-text">{slide.punch}</span>
           </p>
