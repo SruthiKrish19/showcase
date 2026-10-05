@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowUpRight } from 'lucide-react'
 import { getPitch } from '../content/pitches'
 import { accent } from '../lib/accent'
 import { cn } from '../lib/cn'
-import { Demo } from '../components/demos'
+import { Demo, isPhoneDemo } from '../components/demos'
 
 /**
  * The pitch as a screen recording: one simulated phone, as large as the
@@ -52,10 +52,17 @@ export default function PitchDemo() {
         </Link>
       </div>
 
-      {/* The phone takes all the height it can; aspect-ratio carries the
+      {/* The frame takes all the height it can; aspect-ratio carries the
           height constraint back into the width on a narrow screen. */}
-      <div className="relative mx-auto flex min-h-0 w-full max-w-5xl flex-1 items-center justify-center py-5 sm:py-8">
-        <div className="h-full max-w-full" style={{ aspectRatio: '312 / 632' }}>
+      <div className="relative mx-auto flex min-h-0 w-full max-w-6xl flex-1 items-center justify-center py-5 sm:py-8">
+        <div
+          className="max-h-full max-w-full"
+          style={{
+            aspectRatio: isPhoneDemo(pitch.demo) ? '312 / 632' : '760 / 560',
+            height: isPhoneDemo(pitch.demo) ? '100%' : undefined,
+            width: isPhoneDemo(pitch.demo) ? undefined : '100%',
+          }}
+        >
           <Demo demo={pitch.demo} />
         </div>
       </div>

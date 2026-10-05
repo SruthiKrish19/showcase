@@ -29,7 +29,7 @@ const REGISTRY: Record<DemoKey, ComponentType> = {
 
 /** Phone-shaped demos need a narrower stage than the browser ones. */
 export const isPhoneDemo = (key: DemoKey) =>
-  key === 'ar-menu' || key === 'menu-3d' || key === 'ciniops'
+  key === 'ar-menu' || key === 'menu-3d'
 
 /**
  * Mounts a demo once it is near the viewport, so a page with several of them
