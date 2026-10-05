@@ -1,4 +1,5 @@
 import type { DemoKey } from '../components/demos'
+import type { FilmKey } from '../components/films'
 
 export type Accent = 'violet' | 'cyan' | 'amber' | 'rose' | 'lime' | 'orange'
 
@@ -90,4 +91,6 @@ export type Pitch = {
   slides: Slide[]
   /** Simulated walkthrough shown full screen at /pitch/:slug/demo. */
   demo?: DemoKey
+  /** Short interactive motion film, shown first on the demo page. */
+  film?: FilmKey
 }
