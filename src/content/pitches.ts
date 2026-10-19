@@ -1,88 +1,140 @@
 import type { Pitch } from './types'
 
 /**
- * PLACEHOLDER CONTENT.
- * SaaS product ideas — the thinking, not the numbers. Replace the copy;
- * no component changes needed.
+ * SaaS product ideas — the thinking, not the numbers.
+ *
+ * Numbers policy: no market, cost, leakage, time-saved or revenue figures
+ * anywhere in this file. Every number is a structural fact ("crew never
+ * log in") or a plan decision ("two or three pilots"). Nothing has been
+ * measured yet.
  */
 export const pitches: Pitch[] = [
   {
-    slug: 'signal',
-    context:
-      'An early-stage SaaS concept — a knowledge assistant for growing companies. Shared here for investors and potential design partners.',
-    title: 'Signal',
+    slug: 'ciniops',
+    title: 'Ciniops',
     tagline:
-      'The knowledge layer for growing companies — an assistant that actually knows how the business works.',
-    stage: 'prototype',
-    accent: 'cyan',
-    category: 'B2B SaaS · Knowledge management',
-    problem:
-      'Every growing company loses the same knowledge twice: once when it is never written down, and again when the person who knew it leaves. Wikis assume someone has time to maintain them — nobody does, so they rot within a quarter.',
-    solution:
-      'Signal sits passively on the tools a team already uses, extracts the decisions and reasoning buried in them, and surfaces the answer at the moment someone asks — with a citation back to the source, so it can be trusted without verification overhead.',
-    market:
-      'Mid-size engineering and operations teams, in the band where tribal knowledge already costs measurable time but a dedicated knowledge manager is not yet justifiable. A segment that keeps growing as teams distribute.',
-    businessModel:
-      'Per-seat subscription that lands in one department and expands company-wide, with margin improving as the retrieval index is shared across an organisation rather than rebuilt per team.',
-    traction: [
-      'Working prototype ingesting from two production sources',
-      'Validated through structured discovery interviews',
-      'Design partners identified for a first pilot',
-    ],
-  },
-  {
-    slug: 'harbor',
-    context:
-      'An early-stage SaaS concept — deployment infrastructure for federated frontends. Shared here for investors and potential co-founders.',
-    title: 'Harbor',
-    tagline:
-      'The deployment control plane for teams running dozens of independently shipped frontends.',
+      'Tag the script once — shot lists, call sheets, cash and briefs flow from it. Nobody on the receiving end creates an account.',
     stage: 'concept',
-    accent: 'violet',
-    category: 'B2B SaaS · Developer infrastructure',
+    accent: 'rose',
+    category: 'Vertical SaaS · Film production',
+    demo: 'ciniops',
+    film: 'ciniops',
     problem:
-      'Micro-frontends solved an organisational problem and created an operational one. Nobody can say which version of which remote is live, or roll a single one back, without assembling a war room. The architecture has outrun its tooling.',
+      'A film set runs on a script nobody can search, cash bundles with handwritten vouchers, and a call sheet rebuilt every night for four WhatsApp groups. The producer sees overspend late. The AD never knows who read v3. The director won’t share the script because it leaks.',
     solution:
-      'A control plane that treats every remote as a first-class deployable: version pinning, one-click rollback, per-remote canaries, and a dependency graph that tells you what will break before you ship rather than after.',
-    market:
-      'Platform teams who have adopted federated frontends and are now discovering they own a distributed system. A compounding segment, and one that adopts infrastructure tooling bottom-up rather than through long procurement.',
-    businessModel:
-      'Usage-based on deployments and remotes, with an enterprise tier for self-hosting and audit requirements. The platform team is both the user and the budget holder, which keeps the sales motion short.',
-    traction: [
-      'Architecture designed and technically validated',
-      'Pain confirmed with platform leads in structured interviews',
-      'Reference implementation running against a real federated app',
-    ],
-  },
-  {
-    slug: 'cadence',
-    context:
-      'An early-stage SaaS concept — operations software for clinical research sites. Shared here for investors and design partners.',
-    title: 'Cadence',
-    tagline:
-      'Clinical trial operations software built for the coordinators who actually run the trials.',
-    stage: 'concept',
-    accent: 'amber',
-    category: 'Vertical SaaS · Clinical research',
-    problem:
-      'Trial coordinators spend more of their week in spreadsheets and email than with patients. The enterprise systems they are handed were designed for sponsors and auditors — the coordinator is the system’s data entry layer, not its user.',
-    solution:
-      'A coordinator-first workspace unifying scheduling, participant tracking and document collection in one view, pushing compliance overhead into the background where it belongs rather than onto the person doing the work.',
-    market:
-      'Site-level clinical research organisations — an underserved segment sitting beneath the large sponsor-facing platforms, with almost no software built for them specifically.',
-    businessModel:
-      'Per-site licence that scales with active trial count, sold into site networks. The retention profile typical of vertical SaaS, with expansion as networks add sites.',
-    traction: [
-      'Grounded in years of domain experience building clinical technology',
-      'Regulatory pathway mapped with a sector advisor',
-      'Coordinator workflows documented from real sites',
+      'Tag the script once and shot lists, call sheets, cash and briefs flow from it. Spenders, cast and crew get a link, never an account. Money is in paise, GST, TDS and Tally. Nothing is shared wider than it needs to be.',
+
+    slides: [
+      {
+        kind: 'title',
+        eyebrow: 'Concept · Vertical SaaS · Film production',
+        title: 'Ciniops',
+        sub: 'Tag the script once. Everything on set flows from it.',
+      },
+      {
+        kind: 'statement',
+        lead: 'Shot lists, call sheets, cash, briefs —',
+        punch: 'one tagged script. No logins for the people receiving them.',
+      },
+      {
+        kind: 'quotes',
+        eyebrow: 'The set today',
+        title: 'Three people, one bad week.',
+        quotes: [
+          {
+            role: 'Producer',
+            quote: 'I find out about overspend when the schedule is already blown.',
+          },
+          {
+            role: '1st AD',
+            quote: 'I rebuild the call sheet every night for four groups. Nobody knows who read it.',
+          },
+          {
+            role: 'Director',
+            quote: 'My shot division is a photo of my notebook. And the script leaves my hands for no one.',
+          },
+        ],
+      },
+      {
+        kind: 'verbs',
+        eyebrow: 'What we sell',
+        title: 'Four things nobody else does.',
+        verbs: [
+          { verb: 'Tag', line: 'the script once — scenes, props, cast and shoot days follow' },
+          { verb: 'Pay', line: 'in paise, lakh and crore — GST, TDS, Tally with your own ledger names' },
+          { verb: 'Book', line: 'cast dates on a link — no login, overlap at a glance' },
+          { verb: 'Brief', line: 'a slice of the script behind a private link — never the whole' },
+        ],
+      },
+      {
+        kind: 'cards',
+        eyebrow: 'First round',
+        title: 'Twelve screens, one spine.',
+        cards: [
+          { tag: 'A', title: 'Script & breakdown', body: 'Import, tag, attach scenes to shoot days.' },
+          { tag: 'B', title: 'Cash on set', body: 'Wallets, one-page capture, approval bands, settle at wrap.' },
+          { tag: 'C', title: 'Call sheets & links', body: 'Personal links, confirm tracking, calendar, directions.' },
+          { tag: 'D', title: 'Inbox', body: 'What needs my action, per role. Empties as I act.' },
+        ],
+      },
+      {
+        kind: 'steps',
+        eyebrow: 'The leak fear',
+        title: 'It sells the briefs. It blocks the script.',
+        steps: [
+          'Nothing leaves without a named, logged, revocable link.',
+          'Briefs are view-only and watermarked. The script is never attached.',
+          'Per-production isolation, data in India, delete on request.',
+        ],
+        close: 'The answer is on the first screen, not in a policy.',
+      },
+      {
+        kind: 'cards',
+        eyebrow: 'Who it is for',
+        title: 'The buyer, the champion, the door.',
+        cards: [
+          { tag: 'Buyer', title: 'Producer', body: 'The money story.' },
+          { tag: 'Champion', title: 'Line producer', body: 'The pain story.' },
+          { tag: 'Second door', title: 'Director', body: 'Tagged script, leak-proof briefs.' },
+          { tag: 'Receivers', title: 'Cast & crew', body: 'Never log in. A link.' },
+        ],
+      },
+      {
+        kind: 'steps',
+        eyebrow: 'Why nothing fits',
+        title: 'We compete with free.',
+        steps: [
+          'WhatsApp and Sheets cost nothing — and know nothing about a scene.',
+          'Studiovity does breakdown and call sheets, behind a login, without the cash.',
+          'Western tools: dollars, US unions, a laptop with signal.',
+        ],
+        close: 'Our edge: no-login links, India-native cash, the script as the single source.',
+      },
+      {
+        kind: 'statement',
+        eyebrow: 'How it makes money',
+        punch: 'Pay per production. Unlock modules as you grow.',
+        note: 'Pilots are free. Pricing comes from measured usage, not guesses.',
+      },
+      {
+        kind: 'steps',
+        eyebrow: 'The plan',
+        title: 'Mock. Build. Pilot.',
+        steps: [
+          'Twelve mock-up screens on fixture data. The team picks what survives.',
+          'Build the first round end to end and put it on a phone.',
+          'Two or three free pilots. Measure. Ask: would you pay for this?',
+        ],
+      },
+      {
+        kind: 'ask',
+        title: 'Looking for pilot productions and early partners.',
+        body: 'Be in before the first pilot wraps and the pricing is set from real usage.',
+        cta: 'Start a conversation',
+        href: '/#about',
+      },
     ],
   },
 ]
 
 export const getPitch = (slug?: string) => pitches.find((p) => p.slug === slug)
-
-export const nextPitch = (slug: string) => {
-  const i = pitches.findIndex((p) => p.slug === slug)
-  return pitches[(i + 1) % pitches.length]
-}

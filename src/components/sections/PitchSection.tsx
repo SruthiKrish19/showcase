@@ -13,8 +13,8 @@ export function PitchSection() {
           title="SaaS products worth building."
           highlight={['worth', 'building.']}
         >
-          Product ideas at different stages, each with a real problem behind
-          it and a route to revenue. The full thinking is on every page.
+          Product ideas with a real problem behind them and a route to
+          revenue. The full thinking is on every page.
         </SectionHeading>
 
         <PitchCarousel />

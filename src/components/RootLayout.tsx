@@ -26,18 +26,23 @@ function ScrollManager() {
 }
 
 export function RootLayout() {
+  // The pitch deck and demo are full-screen and carry their own way back,
+  // so the site menu, footer and scroll bar would only sit on top of them.
+  const { pathname } = useLocation()
+  const immersive = pathname.startsWith('/pitch/')
+
   return (
     <>
       <Aurora />
       <Spotlight />
       <Grain />
-      <ScrollProgress />
+      {!immersive && <ScrollProgress />}
       <ScrollManager />
-      <Nav />
+      {!immersive && <Nav />}
       <main className="relative">
         <Outlet />
       </main>
-      <Footer />
+      {!immersive && <Footer />}
     </>
   )
 }

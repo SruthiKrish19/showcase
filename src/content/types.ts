@@ -1,4 +1,5 @@
 import type { DemoKey } from '../components/demos'
+import type { FilmKey } from '../components/films'
 
 export type Accent = 'violet' | 'cyan' | 'amber' | 'rose' | 'lime' | 'orange'
 
@@ -50,6 +51,30 @@ export type Project = {
 
 export type Stage = 'concept' | 'prototype' | 'pilot' | 'building'
 
+/** A persona speaking in their own words. */
+export type Voice = {
+  role: string
+  quote: string
+}
+
+/**
+ * One screen of the deck. One idea each, a handful of words — the deck is
+ * read standing up, not studied.
+ */
+export type Slide =
+  | { kind: 'title'; eyebrow: string; title: string; sub: string; note?: string }
+  | { kind: 'statement'; eyebrow?: string; lead?: string; punch: string; note?: string }
+  | { kind: 'quotes'; eyebrow: string; title: string; quotes: Voice[] }
+  | { kind: 'verbs'; eyebrow: string; title: string; verbs: { verb: string; line: string }[] }
+  | {
+      kind: 'cards'
+      eyebrow: string
+      title: string
+      cards: { tag: string; title: string; body: string; dim?: boolean }[]
+    }
+  | { kind: 'steps'; eyebrow: string; title: string; steps: string[]; close?: string }
+  | { kind: 'ask'; title: string; body: string; cta: string; href: string }
+
 /** A SaaS product idea. */
 export type Pitch = {
   slug: string
@@ -59,15 +84,13 @@ export type Pitch = {
   accent: Accent
   /** Category line, e.g. "B2B SaaS \u00b7 Developer tools" */
   category: string
-
-  /* Detail page */
-  /** One line of orientation for an investor arriving on a shared link. */
-  context: string
+  /** Shown on the landing card. Two or three sentences each, no more. */
   problem: string
   solution: string
-  market: string
-  /** How the product would make money — described, not costed. */
-  businessModel: string
-  /** What exists today. */
-  traction: string[]
+  /** The deck. */
+  slides: Slide[]
+  /** Simulated walkthrough shown full screen at /pitch/:slug/demo. */
+  demo?: DemoKey
+  /** Short interactive motion film, shown first on the demo page. */
+  film?: FilmKey
 }

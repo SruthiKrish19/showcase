@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ArrowUpRight, Play } from 'lucide-react'
 import { pitches } from '../../content/pitches'
 import type { Pitch, Stage } from '../../content/types'
 import { accent } from '../../lib/accent'
@@ -33,6 +33,8 @@ export function PitchCarousel() {
   const reduced = useReducedMotion() ?? false
   const trackRef = useRef<HTMLDivElement>(null)
   const [index, setIndex] = useState(0)
+  // One pitch needs no counter, arrows or dots — just the card.
+  const single = pitches.length === 1
 
   // Derive the active slide from scroll position rather than tracking it
   // separately, so a swipe and a button press stay in agreement.
@@ -74,30 +76,32 @@ export function PitchCarousel() {
       transition={transition(0.65)}
     >
       {/* Controls — above the track, out of the way of a swiping thumb */}
-      <div className="mb-5 flex items-center justify-between">
-        <span className="font-display text-sm text-faint tabular-nums">
-          {String(index + 1).padStart(2, '0')}
-          <span className="mx-1.5 text-white/20">/</span>
-          {String(pitches.length).padStart(2, '0')}
-        </span>
+      {!single && (
+        <div className="mb-5 flex items-center justify-between">
+          <span className="font-display text-sm text-faint tabular-nums">
+            {String(index + 1).padStart(2, '0')}
+            <span className="mx-1.5 text-white/20">/</span>
+            {String(pitches.length).padStart(2, '0')}
+          </span>
 
-        <div className="flex gap-2">
-          <ArrowButton
-            label="Previous pitch"
-            onClick={() => goTo(index - 1)}
-            disabled={index === 0}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </ArrowButton>
-          <ArrowButton
-            label="Next pitch"
-            onClick={() => goTo(index + 1)}
-            disabled={index === pitches.length - 1}
-          >
-            <ArrowRight className="h-4 w-4" />
-          </ArrowButton>
+          <div className="flex gap-2">
+            <ArrowButton
+              label="Previous pitch"
+              onClick={() => goTo(index - 1)}
+              disabled={index === 0}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </ArrowButton>
+            <ArrowButton
+              label="Next pitch"
+              onClick={() => goTo(index + 1)}
+              disabled={index === pitches.length - 1}
+            >
+              <ArrowRight className="h-4 w-4" />
+            </ArrowButton>
+          </div>
         </div>
-      </div>
+      )}
 
       <div
         ref={trackRef}
@@ -108,31 +112,33 @@ export function PitchCarousel() {
         className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:-mx-6 sm:px-6 [&::-webkit-scrollbar]:hidden"
       >
         {pitches.map((pitch, i) => (
-          <Slide key={pitch.slug} pitch={pitch} index={i} />
+          <Slide key={pitch.slug} pitch={pitch} index={i} single={single} />
         ))}
       </div>
 
       {/* Dots */}
-      <div className="mt-6 flex justify-center gap-2">
-        {pitches.map((pitch, i) => (
-          <button
-            key={pitch.slug}
-            onClick={() => goTo(i)}
-            aria-label={`Go to ${pitch.title}`}
-            aria-current={i === index}
-            className="group p-2"
-          >
-            <span
-              className={cn(
-                'block h-1.5 rounded-full transition-all duration-500',
-                i === index
-                  ? 'w-7 bg-ink'
-                  : 'w-1.5 bg-white/25 group-hover:bg-white/50',
-              )}
-            />
-          </button>
-        ))}
-      </div>
+      {!single && (
+        <div className="mt-6 flex justify-center gap-2">
+          {pitches.map((pitch, i) => (
+            <button
+              key={pitch.slug}
+              onClick={() => goTo(i)}
+              aria-label={`Go to ${pitch.title}`}
+              aria-current={i === index}
+              className="group p-2"
+            >
+              <span
+                className={cn(
+                  'block h-1.5 rounded-full transition-all duration-500',
+                  i === index
+                    ? 'w-7 bg-ink'
+                    : 'w-1.5 bg-white/25 group-hover:bg-white/50',
+                )}
+              />
+            </button>
+          ))}
+        </div>
+      )}
     </motion.div>
   )
 }
@@ -160,11 +166,26 @@ function ArrowButton({
   )
 }
 
-function Slide({ pitch, index }: { pitch: Pitch; index: number }) {
+function Slide({
+  pitch,
+  index,
+  single,
+}: {
+  pitch: Pitch
+  index: number
+  single: boolean
+}) {
   const a = accent(pitch.accent)
 
   return (
-    <article className="w-[86vw] shrink-0 snap-center sm:w-[70vw] lg:w-full lg:max-w-none">
+    <article
+      className={cn(
+        'shrink-0 snap-center lg:w-full lg:max-w-none',
+        // A lone card fills the row; a peek of the next card only makes
+        // sense when there is one.
+        single ? 'w-full' : 'w-[86vw] sm:w-[70vw]',
+      )}
+    >
       <div
         className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 p-6 sm:p-9 lg:p-12"
         style={{ backgroundColor: 'var(--color-surface)' }}
@@ -203,7 +224,7 @@ function Slide({ pitch, index }: { pitch: Pitch; index: number }) {
           <Block label="Solution" body={pitch.solution} />
         </div>
 
-        <div className="relative mt-8">
+        <div className="relative mt-8 flex flex-wrap gap-3">
           <Link
             to={`/pitch/${pitch.slug}`}
             className={cn(
@@ -212,9 +233,18 @@ function Slide({ pitch, index }: { pitch: Pitch; index: number }) {
               a.border,
             )}
           >
-            Read the pitch
+            Open the deck
             <ArrowUpRight className="h-4 w-4" />
           </Link>
+          {pitch.demo && (
+            <Link
+              to={`/pitch/${pitch.slug}/demo`}
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 px-5 py-2.5 text-sm font-medium text-muted transition-colors duration-300 hover:border-white/25 hover:bg-white/5 hover:text-ink"
+            >
+              <Play className="h-3.5 w-3.5 fill-current" />
+              Watch the demo
+            </Link>
+          )}
         </div>
       </div>
     </article>

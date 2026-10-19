@@ -6,6 +6,7 @@ import { LmsDemo } from './LmsDemo'
 import { FormFillDemo } from './FormFillDemo'
 import { EcommerceDemo } from './EcommerceDemo'
 import { Menu3DDemo } from './Menu3DDemo'
+import { CiniopsDemo } from './CiniopsDemo'
 
 export type DemoKey =
   | 'sites'
@@ -14,6 +15,7 @@ export type DemoKey =
   | 'lms'
   | 'form-fill'
   | 'ecommerce'
+  | 'ciniops'
 
 const REGISTRY: Record<DemoKey, ComponentType> = {
   sites: SitesDemo,
@@ -22,11 +24,15 @@ const REGISTRY: Record<DemoKey, ComponentType> = {
   lms: LmsDemo,
   'form-fill': FormFillDemo,
   ecommerce: EcommerceDemo,
+  ciniops: CiniopsDemo,
 }
 
 /** Phone-shaped demos need a narrower stage than the browser ones. */
 export const isPhoneDemo = (key: DemoKey) =>
   key === 'ar-menu' || key === 'menu-3d'
+
+/** Demos that change shape with the screen (zoomed on phones) size themselves. */
+export const isFluidDemo = (key: DemoKey) => key === 'ciniops'
 
 /**
  * Mounts a demo once it is near the viewport, so a page with several of them
@@ -40,7 +46,7 @@ export function Demo({ demo }: { demo: DemoKey }) {
   const phone = isPhoneDemo(demo)
 
   return (
-    <div ref={ref} style={{ aspectRatio: phone ? '312 / 632' : '760 / 560' }}>
+    <div ref={ref} style={isFluidDemo(demo) ? undefined : { aspectRatio: phone ? '312 / 632' : '760 / 560' }}>
       {inView ? <Component /> : null}
     </div>
   )
