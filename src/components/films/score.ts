@@ -9,7 +9,7 @@
  * It is built on a 102 BPM grid whose bar lines fall on the film's moments:
  * four bars of A-minor tension under the chaos, an implosion, the drop into a
  * warm C-major groove as the script lands, full energy while the work flows
- * out, bells as it reaches people, and the logo on the beat.
+ * out, and the logo on the beat.
  */
 
 export const LENGTH = 33.5
@@ -21,7 +21,7 @@ const hz = (semis: number) => 440 * 2 ** (semis / 12)
 const F1 = hz(-40), G1 = hz(-38), A1 = hz(-36), C2 = hz(-33), A2 = hz(-24)
 const F3 = hz(-16), G3 = hz(-14), A3 = hz(-12), B3 = hz(-10)
 const C4 = hz(-9), D4 = hz(-7), E4 = hz(-5), F4 = hz(-4), G4 = hz(-2)
-const A4 = hz(0), B4 = hz(2), C5 = hz(3), D5 = hz(5), E5 = hz(7), G5 = hz(10), A5 = hz(12), C6 = hz(15)
+const A4 = hz(0), B4 = hz(2), C5 = hz(3), D5 = hz(5), E5 = hz(7), G5 = hz(10), C6 = hz(15)
 
 /* ---------- the grid ---------- */
 /** One bar is 2.35 s, so bar 4 — the drop — lands exactly as the script does. */
@@ -43,13 +43,9 @@ const chordAt = (bar: number) => BARS[Math.min(Math.max(bar, 0), BARS.length - 1
 const Q = [4.2, 5.5, 6.85] // the three questions
 const IMPLODE = at(3, 11) // the pile-up collapses (~8.67 s)
 const DROP = at(4, 0) // the script lands (9.4 s)
-const TAGS = [11.4, 12.15, 12.9, 13.6]
 const TILES = [17.6, 17.8, 18.0, 18.2]
-const PEOPLE = [26.3, 26.6, 26.9, 27.2, 27.5, 27.8]
 const LOGO = at(12, 4) // beat 2 of bar 12 (~28.79 s)
 const TAGLINE = 30.35
-const TAG_NOTE = [C5, E5, G5, A5]
-const PEOPLE_NOTE = [C5, D5, E5, G5, A5, C6]
 
 /* ---------- the arrangement: lists of hits ---------- */
 type Hit = { t: number; v: number; f?: number }
@@ -293,17 +289,6 @@ export function renderCiniopsScore(sampleRate = 48000): {
       R += gv * 0.96
     }
 
-    /* --- tags: a rising pluck on each, C E G A --- */
-    TAGS.forEach((tg, n) => {
-      const e = decay(t, tg, 0.45)
-      if (e > 0.001) {
-        const f = TAG_NOTE[n]
-        const pv = (Math.sin(TAU * f * t) + 0.4 * Math.sin(TAU * f * 2 * t)) * 0.22 * e
-        L += pv * 0.9
-        R += pv
-      }
-    })
-
     /* --- whooshes as the tiles fly out --- */
     for (const tile of TILES) {
       const e = decay(t, tile, 0.12)
@@ -313,18 +298,6 @@ export function renderCiniopsScore(sampleRate = 48000): {
         R += wv * 0.85
       }
     }
-
-    /* --- bells as links reach six people, rising and spreading --- */
-    PEOPLE.forEach((p, n) => {
-      const e = decay(t, p, 0.7)
-      if (e > 0.001) {
-        const f = PEOPLE_NOTE[n]
-        const bell = (Math.sin(TAU * f * t) + 0.5 * Math.sin(TAU * f * 2.01 * t) + 0.25 * Math.sin(TAU * f * 3 * t)) * 0.16 * e
-        const pan = (n / 5 - 0.5) * 0.5
-        L += bell * (1 - pan)
-        R += bell * (1 + pan)
-      }
-    })
 
     /* --- the name: a full major chord and a shimmer --- */
     const finEnv = swell(t, LOGO - 0.05, 0.4, 2, 2.6)
