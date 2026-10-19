@@ -31,6 +31,9 @@ const REGISTRY: Record<DemoKey, ComponentType> = {
 export const isPhoneDemo = (key: DemoKey) =>
   key === 'ar-menu' || key === 'menu-3d'
 
+/** Demos that change shape with the screen (zoomed on phones) size themselves. */
+export const isFluidDemo = (key: DemoKey) => key === 'ciniops'
+
 /**
  * Mounts a demo once it is near the viewport, so a page with several of them
  * (the mobile work list) does not spin up every timer and WebGL context at
@@ -43,7 +46,7 @@ export function Demo({ demo }: { demo: DemoKey }) {
   const phone = isPhoneDemo(demo)
 
   return (
-    <div ref={ref} style={{ aspectRatio: phone ? '312 / 632' : '760 / 560' }}>
+    <div ref={ref} style={isFluidDemo(demo) ? undefined : { aspectRatio: phone ? '312 / 632' : '760 / 560' }}>
       {inView ? <Component /> : null}
     </div>
   )

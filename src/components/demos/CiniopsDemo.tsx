@@ -21,7 +21,8 @@ import {
   MessageSquareText,
 } from 'lucide-react'
 import { BrowserFrame } from './DeviceFrame'
-import { Stage } from './Stage'
+import { CameraStage } from './CameraStage'
+import { MOBILE, useMediaQuery } from '../../lib/useMediaQuery'
 import { Cursor } from './Cursor'
 import { CaptionRail } from './CaptionRail'
 import { Stream } from './Stream'
@@ -122,10 +123,20 @@ export function CiniopsDemo() {
   const sceneIdx = SCENES.findIndex((s) => step <= s.to)
   const scene = SCENES[sceneIdx]
   const cursor = useCursor(step)
+  // On a phone the whole desktop app is too small to read, so the camera
+  // punches in and follows the cursor to whatever is being clicked.
+  const zoomed = useMediaQuery(MOBILE)
 
   return (
     <BrowserFrame url="app.ciniops.in/meera" tabTitle="Meera — Ciniops" className="h-full">
-      <Stage width={760} height={500}>
+      <CameraStage
+        width={760}
+        height={500}
+        focus={cursor}
+        zoomed={zoomed}
+        view={{ w: 340, h: 420 }}
+        overlay={<CaptionRail steps={CAPTIONS} current={scene.caption} tint={ACCENT} />}
+      >
         <div className="relative flex h-full w-full overflow-hidden" style={{ backgroundColor: PAPER, color: INK }}>
           <Sidebar active={scene.nav} />
 
@@ -154,9 +165,8 @@ export function CiniopsDemo() {
           </div>
 
           <Cursor x={cursor.x} y={cursor.y} clicking={cursor.click} />
-          <CaptionRail steps={CAPTIONS} current={scene.caption} tint={ACCENT} />
         </div>
-      </Stage>
+      </CameraStage>
     </BrowserFrame>
   )
 }

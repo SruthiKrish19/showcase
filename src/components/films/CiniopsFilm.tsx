@@ -1,7 +1,9 @@
-import { useRef, type CSSProperties, type ReactNode } from 'react'
-import { CheckCheck, Clapperboard, Link2, Lock, Pause, Play, RotateCcw } from 'lucide-react'
+import { createContext, useContext, useRef, type CSSProperties, type ReactNode } from 'react'
+import { CheckCheck, Clapperboard, Link2, Loader2, Lock, Pause, Play, RotateCcw, Volume2, VolumeX } from 'lucide-react'
 import { Stage } from '../demos/Stage'
 import { cn } from '../../lib/cn'
+import { useFilmAudio } from './filmAudio'
+import { MOBILE, useMediaQuery } from '../../lib/useMediaQuery'
 import {
   clamp,
   easeBack as back,
@@ -14,11 +16,93 @@ import {
   type Timeline,
 } from './useTimeline'
 
-/* Canvas */
-const W = 960
-const H = 540
-const CX = 480
-const CY = 270
+/* ---------- canvas layouts ----------
+   The same film in two shapes. Landscape (16:9) is the original cut;
+   portrait (9:16) re-stages every scene for a phone held upright. Only
+   positions and a few sizes differ — the story and its timing are shared. */
+
+type Pt = readonly [number, number]
+type Layout = {
+  portrait: boolean
+  W: number
+  H: number
+  CX: number
+  CY: number
+  /** Where each pile-up item sits, in CHAOS order. */
+  chaos: Pt[]
+  unreadY: number
+  wordSize: number
+  qSize: number
+  /** Where the script page lands before it shrinks into the centre. */
+  pageY: number
+  /** Where each tag chip flies to, in TAGS order. */
+  chips: Pt[]
+  footY: number
+  /** The four tiles, in TILES order. */
+  tiles: Pt[]
+  tileW: number
+  node: Pt
+  person: (i: number) => Pt
+  captionY: number
+  captionSize: number
+}
+
+const LANDSCAPE: Layout = {
+  portrait: false,
+  W: 960,
+  H: 540,
+  CX: 480,
+  CY: 270,
+  chaos: [
+    [165, 120], [480, 92], [760, 105], [300, 205], [655, 430], [505, 122], [235, 410],
+    [640, 225], [820, 280], [345, 330], [530, 152], [120, 280], [790, 380], [450, 480],
+  ],
+  unreadY: 34,
+  wordSize: 78,
+  qSize: 42,
+  pageY: 285,
+  chips: [[170, 200], [790, 200], [170, 360], [790, 360]],
+  footY: 490,
+  tiles: [[205, 150], [755, 150], [205, 400], [755, 400]],
+  tileW: 256,
+  node: [480, 200],
+  // A shallow arc of six along the bottom
+  person: (i) => {
+    const x = mix(150, 810, i / 5)
+    return [x, 365 + 60 * ((x - 480) / 330) ** 2]
+  },
+  captionY: 58,
+  captionSize: 36,
+}
+
+const PORTRAIT: Layout = {
+  portrait: true,
+  W: 540,
+  H: 960,
+  CX: 270,
+  CY: 480,
+  chaos: [
+    [170, 150], [330, 215], [370, 300], [150, 330], [300, 760], [350, 245], [230, 640],
+    [400, 520], [360, 420], [140, 500], [300, 275], [180, 860], [400, 690], [290, 900],
+  ],
+  unreadY: 70,
+  wordSize: 72,
+  qSize: 32,
+  pageY: 495,
+  // Two chips above the page, two below
+  chips: [[270, 195], [270, 255], [270, 735], [270, 795]],
+  footY: 880,
+  tiles: [[134, 250], [406, 250], [134, 715], [406, 715]],
+  tileW: 236,
+  node: [270, 300],
+  // Two rows of three
+  person: (i) => [[105, 270, 435][i % 3], i < 3 ? 560 : 760],
+  captionY: 120,
+  captionSize: 30,
+}
+
+const LayoutCtx = createContext<Layout>(LANDSCAPE)
+const useL = () => useContext(LayoutCtx)
 
 /**
  * The film is authored on a 15-second story clock, then played on a longer
@@ -88,8 +172,12 @@ export function CiniopsFilm() {
   const tl = useTimeline(LENGTH, 2.2)
   const { px, py } = tl.frame
   const t = toStory(tl.frame.t)
+  const audio = useFilmAudio(tl.frame.t, tl.playing && !tl.isScrubbing())
+  // Phones get the portrait cut; everything else the landscape one.
+  const L = useMediaQuery(MOBILE) ? PORTRAIT : LANDSCAPE
 
   return (
+    <LayoutCtx.Provider value={L}>
     <div>
       <div
         className="relative cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-[#07070b] shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95)]"
@@ -97,7 +185,20 @@ export function CiniopsFilm() {
         onPointerLeave={tl.onLeave}
         onClick={tl.toggle}
       >
-        <Stage width={W} height={H}>
+        <button
+          onClick={(e) => { e.stopPropagation(); void audio.toggle() }}
+          aria-label={audio.enabled ? 'Mute' : 'Sound on'}
+          className="absolute left-4 top-4 z-10 flex items-center gap-1.5 rounded-full bg-black/55 px-3 py-1.5 text-[12px] text-white/80 backdrop-blur transition-colors hover:bg-black/75 hover:text-white"
+        >
+          {audio.building ? (
+            <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading sound</>
+          ) : audio.enabled ? (
+            <><Volume2 className="h-3.5 w-3.5" /> Sound on</>
+          ) : (
+            <><VolumeX className="h-3.5 w-3.5" /> Sound</>
+          )}
+        </button>
+        <Stage width={L.W} height={L.H}>
           <div className="relative h-full w-full overflow-hidden" style={{ color: INK }}>
             <Backdrop t={t} px={px} py={py} />
 
@@ -134,6 +235,7 @@ export function CiniopsFilm() {
 
       <Controls tl={tl} />
     </div>
+    </LayoutCtx.Provider>
   )
 }
 
@@ -168,13 +270,14 @@ function Layer({ d, px, py, children }: { d: number; px: number; py: number; chi
   )
 }
 
-function Ring({ t, at, color, size = 640, x = CX, y = CY }: { t: number; at: number; color: string; size?: number; x?: number; y?: number }) {
+function Ring({ t, at, color, size = 640, x, y }: { t: number; at: number; color: string; size?: number; x?: number; y?: number }) {
+  const L = useL()
   const p = prog(t, at, at + 0.9)
   if (p <= 0 || p >= 1) return null
   return (
     <div
       style={{
-        ...place(x, y, { s: 0.1 + out(p) * 0.9, a: (1 - p) * 0.8 }),
+        ...place(x ?? L.CX, y ?? L.CY, { s: 0.1 + out(p) * 0.9, a: (1 - p) * 0.8 }),
         width: size,
         height: size,
         borderRadius: '50%',
@@ -237,18 +340,25 @@ function Backdrop({ t, px, py }: { t: number; px: number; py: number }) {
 /* ---------- 0–5 s: the set today ---------- */
 
 function Opening({ t }: { t: number }) {
+  const L = useL()
   if (t > 2.2) return null
   const exit = prog(t, 1.5, 2.1)
   const lead = out(prog(t, 0, 0.35))
   return (
     <div
-      style={place(CX, CY, { s: mix(1, 1.3, inOut(exit)), a: 1 - exit, blur: exit * 12 })}
+      style={place(L.CX, L.CY, { s: mix(1, 1.3, inOut(exit)), a: 1 - exit, blur: exit * 12 })}
       className="whitespace-nowrap text-center"
     >
       <p className="text-[18px] text-white/55" style={{ opacity: lead, transform: `translateY(${(1 - lead) * 10}px)` }}>
         Every film set runs on
       </p>
-      <p className="mt-2 flex gap-4 text-[78px] font-semibold leading-none tracking-[-0.04em]" style={{ fontFamily: DISPLAY }}>
+      <p
+        className={cn(
+          'flex font-semibold leading-none tracking-[-0.04em]',
+          L.portrait ? 'mt-4 flex-col items-center gap-2' : 'mt-2 gap-4',
+        )}
+        style={{ fontFamily: DISPLAY, fontSize: L.wordSize }}
+      >
         {['Notes.', 'Calls.', 'WhatsApp.'].map((w, i) => {
           const p = back(prog(t, 0.2 + i * 0.28, 0.65 + i * 0.28))
           return (
@@ -270,26 +380,27 @@ function Opening({ t }: { t: number }) {
   )
 }
 
-type ChaosItem = { k: 'bubble' | 'voucher' | 'file' | 'note'; text: string; x: number; y: number; r: number; at: number }
+type ChaosItem = { k: 'bubble' | 'voucher' | 'file' | 'note'; text: string; r: number; at: number }
 
 const CHAOS: ChaosItem[] = [
-  { k: 'bubble', text: 'location changed!!', x: 165, y: 120, r: -6, at: 0.9 },
-  { k: 'file', text: 'CallSheet_v1.pdf', x: 480, y: 92, r: 2, at: 1.0 },
-  { k: 'bubble', text: 'v3 FINAL?? or v4', x: 760, y: 105, r: 5, at: 1.2 },
-  { k: 'voucher', text: '₹640 · tea shop', x: 300, y: 205, r: -12, at: 1.4 },
-  { k: 'bubble', text: 'who has the cash bundle', x: 655, y: 430, r: -4, at: 1.6 },
-  { k: 'file', text: 'CallSheet_v2_final.pdf', x: 505, y: 122, r: -2, at: 1.8 },
-  { k: 'bubble', text: 'send me the full script', x: 235, y: 410, r: 4, at: 2.0 },
-  { k: 'voucher', text: '₹2,500 · no bill', x: 640, y: 225, r: 9, at: 2.1 },
-  { k: 'bubble', text: 'call time 5 or 5:30?', x: 820, y: 280, r: -3, at: 2.3 },
-  { k: 'note', text: 'shot division — notebook p.14', x: 345, y: 330, r: 7, at: 2.4 },
-  { k: 'file', text: 'CallSheet_v3_FINAL_real.pdf', x: 530, y: 152, r: 3, at: 2.6 },
-  { k: 'bubble', text: 'bill photo?? anyone', x: 120, y: 280, r: 3, at: 2.6 },
-  { k: 'voucher', text: '₹310 · rope', x: 790, y: 380, r: -8, at: 2.8 },
-  { k: 'bubble', text: 'Ravi not picking up', x: 450, y: 480, r: -2, at: 3.0 },
+  { k: 'bubble', text: 'location changed!!', r: -6, at: 0.9 },
+  { k: 'file', text: 'CallSheet_v1.pdf', r: 2, at: 1.0 },
+  { k: 'bubble', text: 'v3 FINAL?? or v4', r: 5, at: 1.2 },
+  { k: 'voucher', text: '₹640 · tea shop', r: -12, at: 1.4 },
+  { k: 'bubble', text: 'who has the cash bundle', r: -4, at: 1.6 },
+  { k: 'file', text: 'CallSheet_v2_final.pdf', r: -2, at: 1.8 },
+  { k: 'bubble', text: 'send me the full script', r: 4, at: 2.0 },
+  { k: 'voucher', text: '₹2,500 · no bill', r: 9, at: 2.1 },
+  { k: 'bubble', text: 'call time 5 or 5:30?', r: -3, at: 2.3 },
+  { k: 'note', text: 'shot division — notebook p.14', r: 7, at: 2.4 },
+  { k: 'file', text: 'CallSheet_v3_FINAL_real.pdf', r: 3, at: 2.6 },
+  { k: 'bubble', text: 'bill photo?? anyone', r: 3, at: 2.6 },
+  { k: 'voucher', text: '₹310 · rope', r: -8, at: 2.8 },
+  { k: 'bubble', text: 'Ravi not picking up', r: -2, at: 3.0 },
 ]
 
 function Chaos({ t }: { t: number }) {
+  const L = useL()
   if (t > 5) return null
   const shake = 6 * inOut(prog(t, 2.4, 4.3))
   const imp = inn(prog(t, 4.3, 4.9))
@@ -300,10 +411,11 @@ function Chaos({ t }: { t: number }) {
         if (enter <= 0) return null
         const jx = Math.sin(t * 13 + i * 1.7) * shake
         const jy = Math.cos(t * 11 + i * 2.3) * shake
+        const [x0, y0] = L.chaos[i]
         return (
           <div
             key={c.text}
-            style={place(mix(c.x + jx, CX, imp), mix(c.y + jy, CY, imp), {
+            style={place(mix(x0 + jx, L.CX, imp), mix(y0 + jy, L.CY, imp), {
               s: enter * (1 - imp),
               r: c.r + imp * (i % 2 ? 140 : -140),
               a: clamp(enter * 1.4),
@@ -369,12 +481,13 @@ function ChaosCard({ c, i }: { c: ChaosItem; i: number }) {
 }
 
 function Unread({ t }: { t: number }) {
+  const L = useL()
   const a = out(prog(t, 0.9, 1.3)) * (1 - prog(t, 4.2, 4.5))
   if (a <= 0) return null
   const n = Math.round(47 * prog(t, 0.9, 4.2))
   return (
     <div
-      style={place(CX, 34, { a })}
+      style={place(L.CX, L.unreadY, { a })}
       className="flex items-center gap-2 whitespace-nowrap rounded-full border border-white/10 bg-black/55 px-3.5 py-1.5 text-[12px] text-white/75"
     >
       <span className="h-2 w-2 rounded-full bg-[#25d366]" />
@@ -390,26 +503,28 @@ const QUESTIONS = [
 ]
 
 function Questions({ t }: { t: number }) {
+  const L = useL()
   const panel = out(prog(t, 2.35, 2.8))
   const imp = inn(prog(t, 4.3, 4.85))
   if (panel <= 0 || imp >= 1) return null
   return (
     <div
       style={{
-        ...place(CX, CY, { s: mix(0.94, 1, panel) * (1 - imp * 0.9), a: panel * (1 - imp) }),
+        ...place(L.CX, L.CY, { s: mix(0.94, 1, panel) * (1 - imp * 0.9), a: panel * (1 - imp) }),
         background: 'rgba(7,7,11,.8)',
         backdropFilter: 'blur(10px)',
       }}
-      className="rounded-3xl border border-white/10 px-11 py-8 text-center"
+      className={cn('rounded-3xl border border-white/10 py-8 text-center', L.portrait ? 'px-7' : 'px-11')}
     >
       {QUESTIONS.map(({ q, at }, i) => {
         const p = out(prog(t, at, at + 0.4))
         return (
           <p
             key={q}
-            className="whitespace-nowrap text-[42px] font-semibold leading-[1.15] tracking-[-0.03em]"
+            className="whitespace-nowrap font-semibold leading-[1.15] tracking-[-0.03em]"
             style={{
               fontFamily: DISPLAY,
+              fontSize: L.qSize,
               opacity: p,
               transform: `translateY(${(1 - p) * 16}px)`,
               color: i === 2 ? ROSE : INK,
@@ -426,10 +541,10 @@ function Questions({ t }: { t: number }) {
 /* ---------- 5–8.5 s: one script, tagged once ---------- */
 
 const TAGS = [
-  { label: 'Meera', kind: 'character · 61 scenes', color: ROSE, paper: '#fecdd3', at: 6.0, chip: [170, 200] },
-  { label: 'Meera’s house', kind: 'location · 9 scenes', color: '#60a5fa', paper: '#bfdbfe', at: 6.35, chip: [790, 200] },
-  { label: 'Wedding saree', kind: 'costume · 5 scenes', color: '#a78bfa', paper: '#ddd6fe', at: 6.7, chip: [170, 360] },
-  { label: 'Brass lamp', kind: 'prop · 3 scenes', color: AMBER, paper: '#fde68a', at: 7.05, chip: [790, 360] },
+  { label: 'Meera', kind: 'character · 61 scenes', color: ROSE, paper: '#fecdd3', at: 6.0 },
+  { label: 'Meera’s house', kind: 'location · 9 scenes', color: '#60a5fa', paper: '#bfdbfe', at: 6.35 },
+  { label: 'Wedding saree', kind: 'costume · 5 scenes', color: '#a78bfa', paper: '#ddd6fe', at: 6.7 },
+  { label: 'Brass lamp', kind: 'prop · 3 scenes', color: AMBER, paper: '#fde68a', at: 7.05 },
 ] as const
 
 type Tag = (typeof TAGS)[number]
@@ -449,6 +564,7 @@ function Mark({ t, tag, children }: { t: number; tag: Tag; children: string }) {
 }
 
 function ScriptPage({ t }: { t: number }) {
+  const L = useL()
   if (t < 4.9 || t > 12.2) return null
   const enter = back(prog(t, 4.95, 5.6))
   const shrink = inOut(prog(t, 8.3, 8.9))
@@ -457,7 +573,7 @@ function ScriptPage({ t }: { t: number }) {
   return (
     <div
       style={{
-        ...place(CX, mix(285, CY, shrink), {
+        ...place(L.CX, mix(L.pageY, L.CY, shrink), {
           s: mix(0.4, 1, enter) * mix(1, 0.44, shrink) * mix(1, 0.5, leave),
           r: mix(-10, 0, enter),
           a: clamp(enter * 2) * (1 - leave),
@@ -500,15 +616,17 @@ function ScriptPage({ t }: { t: number }) {
 }
 
 function TagChips({ t }: { t: number }) {
+  const L = useL()
   if (t < 6 || t > 8.8) return null
   const pull = inn(prog(t, 8.3, 8.75))
   return (
     <>
-      {TAGS.map((tag) => {
+      {TAGS.map((tag, k) => {
         const p = back(prog(t, tag.at + 0.1, tag.at + 0.65))
         if (p <= 0) return null
-        const x = mix(mix(CX, tag.chip[0], p), CX, pull)
-        const y = mix(mix(CY, tag.chip[1], p), CY, pull)
+        const [cx, cy] = L.chips[k]
+        const x = mix(mix(L.CX, cx, p), L.CX, pull)
+        const y = mix(mix(L.CY, cy, p), L.CY, pull)
         return (
           <div
             key={tag.label}
@@ -530,10 +648,14 @@ function TagChips({ t }: { t: number }) {
 }
 
 function Footnote({ t }: { t: number }) {
+  const L = useL()
   const a = out(prog(t, 7.45, 7.85)) * (1 - prog(t, 8.2, 8.45))
   if (a <= 0) return null
   return (
-    <p style={place(CX, 490, { a })} className="whitespace-nowrap text-[13px] text-white/55">
+    <p
+      style={place(L.CX, L.footY, { a })}
+      className={cn('text-[13px] text-white/55', L.portrait ? 'w-[420px] text-center leading-snug' : 'whitespace-nowrap')}
+    >
       <b className="text-white">311 items</b> tagged across <b className="text-white">118 scenes</b> · a person confirms each one
     </p>
   )
@@ -542,27 +664,29 @@ function Footnote({ t }: { t: number }) {
 /* ---------- 8.5–11.5 s: everything flows from it ---------- */
 
 const TILES = [
-  { key: 'shots', x: 205, y: 150, at: 9.0, color: CYAN },
-  { key: 'calls', x: 755, y: 150, at: 9.12, color: GREEN },
-  { key: 'cash', x: 205, y: 400, at: 9.24, color: AMBER },
-  { key: 'brief', x: 755, y: 400, at: 9.36, color: VIOLET },
+  { key: 'shots', at: 9.0, color: CYAN },
+  { key: 'calls', at: 9.12, color: GREEN },
+  { key: 'cash', at: 9.24, color: AMBER },
+  { key: 'brief', at: 9.36, color: VIOLET },
 ] as const
 
 type TileKey = (typeof TILES)[number]['key']
 
 function Tiles({ t }: { t: number }) {
+  const L = useL()
   if (t < 8.85 || t > 12) return null
   const leave = inOut(prog(t, 11.35, 11.85))
   return (
     <>
-      <svg width={W} height={H} className="absolute inset-0" style={{ opacity: 1 - leave }}>
-        {TILES.map((tile) => {
-          const c = [tile.x, CY]
+      <svg width={L.W} height={L.H} className="absolute inset-0" style={{ opacity: 1 - leave }}>
+        {TILES.map((tile, k) => {
+          const [tx, ty] = L.tiles[k]
+          const c = [tx, L.CY]
           const p = out(prog(t, tile.at - 0.05, tile.at + 0.5))
           return (
             <g key={tile.key}>
               <path
-                d={`M ${CX} ${CY} Q ${c[0]} ${c[1]} ${tile.x} ${tile.y}`}
+                d={`M ${L.CX} ${L.CY} Q ${c[0]} ${c[1]} ${tx} ${ty}`}
                 fill="none"
                 stroke={tile.color}
                 strokeOpacity={0.5}
@@ -574,7 +698,7 @@ function Tiles({ t }: { t: number }) {
               {t > 9.6 &&
                 [0, 1, 2].map((k) => {
                   const u = ((t - 9.6) * 0.65 + k / 3) % 1
-                  const [x, y] = bez([CX, CY], c, [tile.x, tile.y], u)
+                  const [x, y] = bez([L.CX, L.CY], c, [tx, ty], u)
                   return (
                     <g key={k}>
                       <circle cx={x} cy={y} r={8} fill={tile.color} opacity={0.18} />
@@ -587,18 +711,19 @@ function Tiles({ t }: { t: number }) {
         })}
       </svg>
 
-      {TILES.map((tile) => {
+      {TILES.map((tile, k) => {
         const e = back(prog(t, tile.at, tile.at + 0.6))
         if (e <= 0) return null
+        const [tx, ty] = L.tiles[k]
         const pos = out(prog(t, tile.at, tile.at + 0.6))
-        const x = mix(mix(CX, tile.x, pos), CX, leave * 0.25)
-        const y = mix(mix(CY, tile.y, pos), CY, leave * 0.25)
+        const x = mix(mix(L.CX, tx, pos), L.CX, leave * 0.25)
+        const y = mix(mix(L.CY, ty, pos), L.CY, leave * 0.25)
         return (
           <div
             key={tile.key}
             style={{
               ...place(x, y, { s: mix(0.4, 1, e) * mix(1, 0.85, leave), a: clamp(e * 2) * (1 - leave) }),
-              width: 256,
+              width: L.tileW,
               borderColor: `${tile.color}55`,
               boxShadow: `0 20px 50px -20px rgba(0,0,0,.9), 0 0 40px ${tile.color}1f`,
             }}
@@ -712,8 +837,6 @@ function TileBody({ k, t, color }: { k: TileKey; t: number; color: string }) {
 
 /* ---------- 11.5–13.5 s: no logins, just links ---------- */
 
-const NODE = [CX, 200] as const
-
 const PEOPLE = [
   { role: 'Producer', initials: 'PR', status: 'approved ₹12,000', hue: ['#fb7185', '#f97316'] },
   { role: 'Line producer', initials: 'LP', status: 'wallets settled', hue: ['#fbbf24', '#f59e0b'] },
@@ -723,18 +846,16 @@ const PEOPLE = [
   { role: 'Music director', initials: 'MD', status: 'opened brief', hue: ['#f472b6', '#db2777'] },
 ]
 
-const personAt = (i: number) => {
-  const x = mix(150, 810, i / 5)
-  return [x, 365 + 60 * ((x - CX) / 330) ** 2] as const
-}
-
 function Links({ t }: { t: number }) {
+  const L = useL()
+  const NODE = L.node
+  const personAt = L.person
   if (t < 11.55 || t > 14) return null
   const fin = inn(prog(t, 13.3, 13.75))
   const n = back(prog(t, 11.6, 12.1))
   return (
     <>
-      <svg width={W} height={H} className="absolute inset-0" style={{ opacity: 1 - fin }}>
+      <svg width={L.W} height={L.H} className="absolute inset-0" style={{ opacity: 1 - fin }}>
         {PEOPLE.map((p, i) => {
           const [x, y] = personAt(i)
           const c = [x, NODE[1]]
@@ -786,8 +907,8 @@ function Links({ t }: { t: number }) {
         const arrive = 12.65 + i * 0.13
         const badge = back(prog(t, arrive, arrive + 0.35))
         const status = out(prog(t, arrive, arrive + 0.4))
-        const x = mix(x0, CX, fin)
-        const y = mix(y0, CY, fin)
+        const x = mix(x0, L.CX, fin)
+        const y = mix(y0, L.CY, fin)
         return (
           <div key={p.role} style={place(x, y + 22, { s: mix(0.3, 1, e) * (1 - fin), a: clamp(e * 2) * (1 - fin) })} className="flex w-[130px] flex-col items-center text-center">
             <div className="relative">
@@ -823,6 +944,7 @@ const CAPTIONS = [
 ]
 
 function Captions({ t }: { t: number }) {
+  const L = useL()
   return (
     <>
       {CAPTIONS.map((c) => {
@@ -833,8 +955,8 @@ function Captions({ t }: { t: number }) {
         return (
           <p
             key={c.lead}
-            style={{ ...place(CX, 58 + (1 - i) * 16 - o * 10, { a, blur: o * 6 }), fontFamily: DISPLAY }}
-            className="whitespace-nowrap text-[36px] font-semibold tracking-[-0.03em]"
+            style={{ ...place(L.CX, L.captionY + (1 - i) * 16 - o * 10, { a, blur: o * 6 }), fontFamily: DISPLAY, fontSize: L.captionSize }}
+            className="whitespace-nowrap font-semibold tracking-[-0.03em]"
           >
             <span className="text-white/90">{c.lead} </span>
             <span style={GRADIENT}>{c.punch}</span>
@@ -848,12 +970,13 @@ function Captions({ t }: { t: number }) {
 /* ---------- 13.5–15 s: the name ---------- */
 
 function Finale({ t }: { t: number }) {
+  const L = useL()
   if (t < 13.55) return null
   const m = back(prog(t, 13.65, 14.15))
   const tag = out(prog(t, 14.3, 14.75))
   const sub = out(prog(t, 14.55, 14.95))
   return (
-    <div style={place(CX, CY)} className="flex flex-col items-center whitespace-nowrap text-center">
+    <div style={place(L.CX, L.CY)} className="flex flex-col items-center whitespace-nowrap text-center">
       <div
         className="flex h-[78px] w-[78px] items-center justify-center rounded-[22px]"
         style={{
@@ -875,7 +998,10 @@ function Finale({ t }: { t: number }) {
           )
         })}
       </p>
-      <p className="mt-4 text-[23px] font-medium" style={{ opacity: tag, transform: `translateY(${(1 - tag) * 10}px)` }}>
+      <p
+        className={cn('mt-4 text-[23px] font-medium', L.portrait && 'flex flex-col items-center leading-snug')}
+        style={{ opacity: tag, transform: `translateY(${(1 - tag) * 10}px)` }}
+      >
         <span className="text-white/70">Cash. Crew. Calls. </span>
         <span style={GRADIENT}>Tracked, not chased.</span>
       </p>

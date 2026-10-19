@@ -4,7 +4,8 @@ import { ArrowLeft, ArrowUpRight } from 'lucide-react'
 import { getPitch } from '../content/pitches'
 import { accent } from '../lib/accent'
 import { cn } from '../lib/cn'
-import { Demo, isPhoneDemo } from '../components/demos'
+import { Demo, isFluidDemo, isPhoneDemo } from '../components/demos'
+import { MOBILE, useMediaQuery } from '../lib/useMediaQuery'
 import { Film } from '../components/films'
 
 type View = 'film' | 'walkthrough'
@@ -17,6 +18,7 @@ export default function PitchDemo() {
   const { slug } = useParams()
   const pitch = getPitch(slug)
   const [view, setView] = useState<View>('film')
+  const mobile = useMediaQuery(MOBILE)
 
   if (!pitch) return <Navigate to="/404" replace />
   if (!pitch.demo && !pitch.film) return <Navigate to={`/pitch/${pitch.slug}`} replace />
@@ -62,14 +64,18 @@ export default function PitchDemo() {
           height constraint back into the width on a narrow screen. */}
       <div className="relative mx-auto flex min-h-0 w-full max-w-6xl flex-1 items-center justify-center py-4 sm:py-6">
         {showing === 'film' && pitch.film ? (
-          // 16:9 film plus its control bar; width follows the free height
-          <div className="w-full" style={{ maxWidth: 'calc((100svh - 330px) * 16 / 9)' }}>
+          // Film plus its control bar; width follows the free height. Phones
+          // get the portrait cut (9:16), everything else the 16:9 one.
+          <div
+            className="w-full"
+            style={{ maxWidth: mobile ? 'calc((100svh - 220px) * 9 / 16)' : 'calc((100svh - 260px) * 16 / 9)' }}
+          >
             <Film film={pitch.film} />
           </div>
         ) : pitch.demo ? (
           <div
             className="max-h-full max-w-full"
-            style={{
+            style={mobile && isFluidDemo(pitch.demo) ? { width: '100%' } : {
               aspectRatio: isPhoneDemo(pitch.demo) ? '312 / 632' : '760 / 560',
               height: isPhoneDemo(pitch.demo) ? '100%' : undefined,
               width: isPhoneDemo(pitch.demo) ? undefined : '100%',
