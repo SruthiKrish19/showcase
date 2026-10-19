@@ -119,7 +119,8 @@ function useCursor(step: number) {
  * a link is the point. Names and amounts are illustrative fixture data.
  */
 export function CiniopsDemo() {
-  const step = useCycle(STEPS, 1800)
+  // Plays like a video: even with reduced motion, and paused while hidden
+  const step = useCycle(STEPS, 1800, true)
   const sceneIdx = SCENES.findIndex((s) => step <= s.to)
   const scene = SCENES[sceneIdx]
   const cursor = useCursor(step)
@@ -164,7 +165,7 @@ export function CiniopsDemo() {
             </div>
           </div>
 
-          <Cursor x={cursor.x} y={cursor.y} clicking={cursor.click} />
+          <Cursor x={cursor.x} y={cursor.y} clicking={cursor.click} always />
         </div>
       </CameraStage>
     </BrowserFrame>

@@ -15,14 +15,16 @@ export type Frame = {
  * pointer is eased in the same loop and used for parallax.
  *
  * Plays to the end, holds the last frame for `hold` seconds, then loops.
- * With reduced motion it parks on the final frame and waits to be played.
+ * It autoplays even with reduced motion on — the viewer chose to watch it,
+ * and parking on the last frame read as "not playing". Reduced motion only
+ * turns off the pointer parallax.
  */
 export function useTimeline(duration: number, hold = 1.8) {
   const reduced = useReducedMotion() ?? false
-  const [frame, setFrame] = useState<Frame>({ t: reduced ? duration : 0, px: 0, py: 0 })
-  const [playing, setPlaying] = useState(!reduced)
-  const playingRef = useRef(!reduced)
-  const tRef = useRef(reduced ? duration : 0)
+  const [frame, setFrame] = useState<Frame>({ t: 0, px: 0, py: 0 })
+  const [playing, setPlaying] = useState(true)
+  const playingRef = useRef(true)
+  const tRef = useRef(0)
   const scrubRef = useRef(false)
   const target = useRef({ x: 0, y: 0 })
   const eased = useRef({ x: 0, y: 0 })

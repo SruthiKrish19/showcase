@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 type Props = {
   width: number
@@ -27,7 +27,6 @@ const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v))
 export function CameraStage({ width, height, focus, zoomed, view, overlay, children }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [boxW, setBoxW] = useState(0)
-  const reduced = useReducedMotion()
   // The first measured frame jumps into place; after that the camera glides.
   const settled = useRef(false)
 
@@ -49,7 +48,8 @@ export function CameraStage({ width, height, focus, zoomed, view, overlay, child
     if (scale) settled.current = true
   }, [scale])
 
-  const glide = zoomed && settled.current && !reduced
+  // Glides even with reduced motion: hard jumps around the app are harsher
+  const glide = zoomed && settled.current
 
   return (
     <div ref={ref} className="relative w-full overflow-hidden" style={{ aspectRatio: `${vw} / ${vh}` }}>
