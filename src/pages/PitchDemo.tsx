@@ -64,11 +64,11 @@ export default function PitchDemo() {
           height constraint back into the width on a narrow screen. */}
       <div className="relative mx-auto flex min-h-0 w-full max-w-6xl flex-1 items-center justify-center py-4 sm:py-6">
         {showing === 'film' && pitch.film ? (
-          // Film plus its control bar; width follows the free height. Phones
+          // Width follows the free height. Phones
           // get the portrait cut (9:16), everything else the 16:9 one.
           <div
             className="w-full"
-            style={{ maxWidth: mobile ? 'calc((100svh - 220px) * 9 / 16)' : 'calc((100svh - 260px) * 16 / 9)' }}
+            style={{ maxWidth: mobile ? 'calc((100svh - 170px) * 9 / 16)' : 'calc((100svh - 210px) * 16 / 9)' }}
           >
             <Film film={pitch.film} />
           </div>
@@ -112,7 +112,7 @@ export default function PitchDemo() {
         )}
         <p className="text-xs text-faint">
           {showing === 'film'
-            ? 'Drag the timeline, jump to a chapter, or move your mouse over it. Space pauses.'
+            ? 'Tap Sound for music. Tap the film to pause.'
             : 'A simulated walkthrough. Names and amounts are illustrative.'}
         </p>
       </div>

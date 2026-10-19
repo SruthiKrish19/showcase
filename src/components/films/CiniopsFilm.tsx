@@ -1,5 +1,5 @@
-import { createContext, useContext, useRef, type CSSProperties, type ReactNode } from 'react'
-import { CheckCheck, Clapperboard, Link2, Loader2, Lock, Pause, Play, RotateCcw, Volume2, VolumeX } from 'lucide-react'
+import { createContext, useContext, type CSSProperties, type ReactNode } from 'react'
+import { CheckCheck, Clapperboard, Link2, Loader2, Lock, Pause, Volume2, VolumeX } from 'lucide-react'
 import { Stage } from '../demos/Stage'
 import { cn } from '../../lib/cn'
 import { useFilmAudio } from './filmAudio'
@@ -13,7 +13,6 @@ import {
   mix,
   prog,
   useTimeline,
-  type Timeline,
 } from './useTimeline'
 
 /* ---------- canvas layouts ----------
@@ -111,7 +110,6 @@ const useL = () => useContext(LayoutCtx)
  * quick ones (implode, pops, fly-outs) nearly at their authored speed.
  * Pairs of [real seconds, story seconds].
  */
-const STORY = 15
 const WARP: [number, number][] = [
   [0, 0],
   [3.5, 2.2], // Notes. Calls. WhatsApp.
@@ -126,7 +124,7 @@ const WARP: [number, number][] = [
 ]
 const LENGTH = WARP[WARP.length - 1][0]
 
-/** Piecewise-linear lookup through WARP, in either direction. */
+/** Piecewise-linear lookup through WARP. */
 function lookup(v: number, from: 0 | 1) {
   const to = from === 0 ? 1 : 0
   for (let i = 1; i < WARP.length; i++) {
@@ -137,7 +135,6 @@ function lookup(v: number, from: 0 | 1) {
   return WARP[WARP.length - 1][to]
 }
 const toStory = (real: number) => lookup(clamp(real, 0, LENGTH), 0)
-const toReal = (story: number) => lookup(clamp(story, 0, STORY), 1)
 
 const INK = '#ededf2'
 const ROSE = '#fb7185'
@@ -154,13 +151,6 @@ const GRADIENT: CSSProperties = {
   color: 'transparent',
 }
 
-const CHAPTERS = [
-  { at: 0, label: 'The set today' },
-  { at: 4.95, label: 'One script' },
-  { at: 8.6, label: 'It flows' },
-  { at: 11.6, label: 'Just links' },
-  { at: 13.5, label: 'Ciniops' },
-]
 
 /**
  * Ciniops in half a minute: the chaos of a set today collapses into one
@@ -226,14 +216,13 @@ export function CiniopsFilm() {
 
             {!tl.playing && tl.frame.t < LENGTH && (
               <span className="absolute right-4 top-4 flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-[12px] text-white/80 backdrop-blur">
-                <Pause className="h-3 w-3" /> Paused · click to play
+                <Pause className="h-3 w-3" /> Paused · tap to play
               </span>
             )}
           </div>
         </Stage>
       </div>
 
-      <Controls tl={tl} />
     </div>
     </LayoutCtx.Provider>
   )
@@ -1008,102 +997,6 @@ function Finale({ t }: { t: number }) {
       <p className="mt-3 text-[13px] text-white/45" style={{ opacity: sub }}>
         Tag the script once. Everything on set flows from it.
       </p>
-    </div>
-  )
-}
-
-/* ---------- controls ---------- */
-
-function Controls({ tl }: { tl: Timeline }) {
-  const { t } = tl.frame
-  const track = useRef<HTMLDivElement>(null)
-  const ended = t >= LENGTH
-  const chapters = CHAPTERS.map((c) => ({ ...c, at: toReal(c.at) }))
-  const current = chapters.reduce((acc, c, i) => (t >= c.at ? i : acc), 0)
-
-  const seekAt = (clientX: number) => {
-    const el = track.current
-    if (!el) return
-    const r = el.getBoundingClientRect()
-    tl.seek(((clientX - r.left) / r.width) * LENGTH)
-  }
-
-  return (
-    <div className="mt-3 flex items-center gap-3 sm:gap-4">
-      <button
-        onClick={tl.toggle}
-        aria-label={ended ? 'Replay' : tl.playing ? 'Pause' : 'Play'}
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink text-bg transition-colors hover:bg-white"
-      >
-        {ended && !tl.playing ? (
-          <RotateCcw className="h-4 w-4" />
-        ) : tl.playing ? (
-          <Pause className="h-4 w-4 fill-current" />
-        ) : (
-          <Play className="h-4 w-4 fill-current" />
-        )}
-      </button>
-
-      <div className="min-w-0 flex-1">
-        <div
-          ref={track}
-          role="slider"
-          tabIndex={0}
-          aria-label="Film timeline"
-          aria-valuemin={0}
-          aria-valuemax={LENGTH}
-          aria-valuenow={Number(t.toFixed(1))}
-          className="relative h-5 cursor-pointer touch-none"
-          onPointerDown={(e) => {
-            e.currentTarget.setPointerCapture(e.pointerId)
-            tl.startScrub()
-            seekAt(e.clientX)
-          }}
-          onPointerMove={(e) => {
-            if (tl.isScrubbing()) seekAt(e.clientX)
-          }}
-          onPointerUp={tl.endScrub}
-          onPointerCancel={tl.endScrub}
-        >
-          <div className="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-white/10" />
-          <div
-            className="absolute left-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full"
-            style={{ width: `${(t / LENGTH) * 100}%`, background: `linear-gradient(90deg, ${VIOLET}, ${CYAN}, ${ROSE})` }}
-          />
-          {chapters.slice(1).map((c) => (
-            <span
-              key={c.label}
-              className="absolute top-1/2 h-2 w-px -translate-y-1/2 bg-white/30"
-              style={{ left: `${(c.at / LENGTH) * 100}%` }}
-            />
-          ))}
-          <span
-            className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,.5)]"
-            style={{ left: `${(t / LENGTH) * 100}%` }}
-          />
-        </div>
-
-        {/* Chapters — click to jump */}
-        <div className="relative mt-1 hidden h-4 sm:block">
-          {chapters.map((c, i) => (
-            <button
-              key={c.label}
-              onClick={() => tl.seek(c.at)}
-              className={cn(
-                'absolute whitespace-nowrap text-[11px] transition-colors',
-                i === current ? 'text-ink' : 'text-faint hover:text-muted',
-              )}
-              style={{ left: `${(c.at / LENGTH) * 100}%` }}
-            >
-              {c.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <span className="shrink-0 font-display text-xs tabular-nums text-faint">
-        {t.toFixed(1)} / {LENGTH}.0s
-      </span>
     </div>
   )
 }
