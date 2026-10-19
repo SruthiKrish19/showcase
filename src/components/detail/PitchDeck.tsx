@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { AnimatePresence, motion, useReducedMotion, type TapInfo } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react'
 import type { Accent, Pitch, Slide } from '../../content/types'
 import { accent } from '../../lib/accent'
@@ -57,19 +57,25 @@ export function PitchDeck({ pitch }: { pitch: Pitch }) {
       reduced ? { opacity: 0 } : { opacity: 0, x: -48 * d, filter: 'blur(8px)' },
   }
 
-  // Tap right to advance, left to go back — the story pattern every phone
-  // user already knows. Framer only fires onTap when the pointer did not
-  // drag, so a swipe never doubles as a tap.
-  const onTap = (e: MouseEvent | TouchEvent | PointerEvent, info: TapInfo) => {
+  // Tap anywhere on the screen: the left edge goes back, the rest goes
+  // forward — the story pattern every phone user already knows. A swipe
+  // also ends in a click, so a drag marks itself and that click is skipped.
+  const dragged = useRef(false)
+  const onScreenTap = (e: MouseEvent<HTMLElement>) => {
+    if (dragged.current) {
+      dragged.current = false
+      return
+    }
     if ((e.target as HTMLElement).closest('button, a')) return
-    goTo(info.point.x < window.innerWidth * 0.3 ? index - 1 : index + 1)
+    goTo(e.clientX < window.innerWidth * 0.3 ? index - 1 : index + 1)
   }
 
   return (
     // Fixed to the viewport: the page never scrolls behind a deck. A slide
     // taller than the screen scrolls inside its own region instead.
     <section
-      className="fixed inset-0 z-40 flex flex-col px-5 pt-20 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-6 sm:pt-28 sm:pb-8"
+      className="fixed inset-0 z-40 flex cursor-pointer select-none flex-col px-5 pt-[calc(env(safe-area-inset-top)+1.25rem)] pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-6 sm:pt-10 sm:pb-8"
+      onClick={onScreenTap}
       aria-roledescription="carousel"
       aria-label={`${pitch.title} pitch deck`}
     >
@@ -117,9 +123,8 @@ export function PitchDeck({ pitch }: { pitch: Pitch }) {
         ))}
       </div>
 
-      {/* The slide — anchored low on a phone like a story, centred on desktop.
-          min-h-0 lets the region shrink and scroll instead of pushing the
-          bars off screen. */}
+      {/* The slide, centred in the space between the bars. min-h-0 lets the
+          region shrink and scroll instead of pushing the bars off screen. */}
       <div className="relative mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <AnimatePresence mode="wait" custom={dir} initial={false}>
           <motion.div
@@ -133,12 +138,19 @@ export function PitchDeck({ pitch }: { pitch: Pitch }) {
             drag={reduced ? false : 'x'}
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.15}
+            onDragStart={() => {
+              dragged.current = true
+            }}
             onDragEnd={(_, info) => {
               if (info.offset.x < -SWIPE) goTo(index + 1)
               if (info.offset.x > SWIPE) goTo(index - 1)
+              // If the pointer left the screen no click follows; don't let
+              // the flag swallow the next real tap.
+              setTimeout(() => {
+                dragged.current = false
+              }, 80)
             }}
-            onTap={onTap}
-            className="mt-auto w-full cursor-pointer py-6 select-none sm:my-auto sm:cursor-grab sm:py-12 sm:active:cursor-grabbing"
+            className="my-auto w-full py-6 sm:cursor-grab sm:py-12 sm:active:cursor-grabbing"
           >
             <SlideView slide={slides[index]} pitch={pitch} accentKey={pitch.accent} />
           </motion.div>

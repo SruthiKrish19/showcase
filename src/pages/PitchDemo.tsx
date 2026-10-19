@@ -27,7 +27,7 @@ export default function PitchDemo() {
 
   return (
     <section
-      className="fixed inset-0 z-40 flex flex-col px-5 pt-20 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-6 sm:pt-28 sm:pb-8"
+      className="fixed inset-0 z-40 flex flex-col px-5 pt-[calc(env(safe-area-inset-top)+1.25rem)] pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-6 sm:pt-10 sm:pb-8"
       aria-label={`${pitch.title} demo`}
     >
       <span
