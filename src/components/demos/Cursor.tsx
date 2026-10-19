@@ -6,12 +6,14 @@ type Props = {
   y: number
   /** Fires the click ripple when this flips true. */
   clicking?: boolean
+  /** Show even with reduced motion — for walkthroughs where it carries the story. */
+  always?: boolean
 }
 
 /** A pointer that moves and clicks — the strongest cue that this is a recording. */
-export function Cursor({ x, y, clicking }: Props) {
+export function Cursor({ x, y, clicking, always }: Props) {
   const reduced = useReducedMotion()
-  if (reduced) return null
+  if (reduced && !always) return null
 
   return (
     <motion.div
