@@ -273,7 +273,7 @@ function ChapterNav({ scene, done, go }: { scene: number; done: boolean; go: (i:
   )
 }
 
-const pad2 = (n: number) => String(n).padStart(2, "0")
+const pad2 = (n: number) => String(n).padStart(2, '0')
 
 /* ---------- chrome ---------- */
 
