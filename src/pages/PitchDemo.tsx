@@ -76,7 +76,8 @@ export default function PitchDemo() {
           <div
             className="max-h-full max-w-full"
             style={mobile && isFluidDemo(pitch.demo) ? { width: '100%' } : {
-              aspectRatio: isPhoneDemo(pitch.demo) ? '312 / 632' : '760 / 560',
+              // A fluid demo carries its own chapter buttons under the frame
+              aspectRatio: isPhoneDemo(pitch.demo) ? '312 / 632' : isFluidDemo(pitch.demo) ? '760 / 640' : '760 / 560',
               height: isPhoneDemo(pitch.demo) ? '100%' : undefined,
               width: isPhoneDemo(pitch.demo) ? undefined : '100%',
             }}
@@ -113,7 +114,7 @@ export default function PitchDemo() {
         <p className="text-xs text-faint">
           {showing === 'film'
             ? 'Tap Sound for music. Tap the film to pause.'
-            : 'A simulated walkthrough. Names and amounts are illustrative.'}
+            : 'Use the arrows to move through it. Names and amounts are illustrative.'}
         </p>
       </div>
     </section>

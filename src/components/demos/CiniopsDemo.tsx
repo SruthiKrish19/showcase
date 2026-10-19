@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { useCallback, useEffect, useState } from 'react'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import {
+  ArrowLeft,
+  ArrowRight,
+  RotateCcw,
   CalendarDays,
   CalendarPlus,
   Check,
@@ -26,7 +29,6 @@ import { MOBILE, useMediaQuery } from '../../lib/useMediaQuery'
 import { Cursor } from './Cursor'
 import { CaptionRail } from './CaptionRail'
 import { Stream } from './Stream'
-import { useCycle } from './useCycle'
 
 const INK = '#15181d'
 const MUTED = '#6b7280'
@@ -57,18 +59,54 @@ const CAPTIONS = [
 
 type Nav = 'script' | 'cash' | 'calls' | 'people' | 'briefs' | 'inbox'
 
-/** Step ranges per scene, the sidebar item they live under, and the caption. */
-const SCENES: { to: number; nav: Nav; caption: number; who: string }[] = [
-  { to: 3, nav: 'script', caption: 0, who: 'Director' },
-  { to: 8, nav: 'cash', caption: 1, who: 'Priya · Line producer' },
-  { to: 10, nav: 'cash', caption: 2, who: 'Accountant' },
-  { to: 13, nav: 'calls', caption: 3, who: 'Deepak · 1st AD' },
-  { to: 15, nav: 'calls', caption: 4, who: 'Deepak · 1st AD' },
-  { to: 18, nav: 'people', caption: 5, who: 'Deepak · 1st AD' },
-  { to: 20, nav: 'briefs', caption: 6, who: 'Director' },
-  { to: 22, nav: 'inbox', caption: 7, who: 'Producer' },
+/** Step ranges per chapter, its name, the sidebar item, the caption, whose view. */
+const SCENES: { to: number; name: string; nav: Nav; caption: number; who: string }[] = [
+  { to: 3, name: 'Tag the script', nav: 'script', caption: 0, who: 'Director' },
+  { to: 8, name: 'Cash on set', nav: 'cash', caption: 1, who: 'Priya · Line producer' },
+  { to: 10, name: 'Export to Tally', nav: 'cash', caption: 2, who: 'Accountant' },
+  { to: 13, name: 'Call sheet links', nav: 'calls', caption: 3, who: 'Deepak · 1st AD' },
+  { to: 15, name: 'The actor’s link', nav: 'calls', caption: 4, who: 'Deepak · 1st AD' },
+  { to: 18, name: 'Cast dates', nav: 'people', caption: 5, who: 'Deepak · 1st AD' },
+  { to: 20, name: 'Private brief', nav: 'briefs', caption: 6, who: 'Director' },
+  { to: 22, name: 'Inbox', nav: 'inbox', caption: 7, who: 'Producer' },
 ]
-const STEPS = SCENES[SCENES.length - 1].to + 1
+const sceneStart = (i: number) => (i === 0 ? 0 : SCENES[i - 1].to + 1)
+
+/**
+ * The viewer drives the walkthrough a chapter at a time. Within a chapter the
+ * steps still play on their own — that is where the cursor shows what moves —
+ * then it holds on the last step and waits for Next.
+ */
+function useChapters(interval: number) {
+  const [scene, setScene] = useState(0)
+  const [step, setStep] = useState(0)
+  const done = step >= SCENES[scene].to
+
+  useEffect(() => {
+    if (done) return
+    const id = setTimeout(() => setStep((s) => s + 1), interval)
+    return () => clearTimeout(id)
+  }, [step, done, interval])
+
+  const go = useCallback((i: number) => {
+    const next = (i + SCENES.length) % SCENES.length
+    setScene(next)
+    setStep(sceneStart(next))
+  }, [])
+
+  // Arrow keys move between chapters, unless a button or link has focus
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement).closest('button, a, input')) return
+      if (e.key === 'ArrowRight') go(scene + 1)
+      if (e.key === 'ArrowLeft' && scene > 0) go(scene - 1)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [go, scene])
+
+  return { scene, step, done, go }
+}
 
 /* Where the pointer goes on each step. `at` is ms after the step starts, so
    one step can walk to the sidebar first and then to the control. */
@@ -119,9 +157,9 @@ function useCursor(step: number) {
  * a link is the point. Names and amounts are illustrative fixture data.
  */
 export function CiniopsDemo() {
-  // Plays like a video: even with reduced motion, and paused while hidden
-  const step = useCycle(STEPS, 1800, true)
-  const sceneIdx = SCENES.findIndex((s) => step <= s.to)
+  const chapters = useChapters(1800)
+  const { step } = chapters
+  const sceneIdx = chapters.scene
   const scene = SCENES[sceneIdx]
   const cursor = useCursor(step)
   // On a phone the whole desktop app is too small to read, so the camera
@@ -129,7 +167,8 @@ export function CiniopsDemo() {
   const zoomed = useMediaQuery(MOBILE)
 
   return (
-    <BrowserFrame url="app.ciniops.in/meera" tabTitle="Meera — Ciniops" className="h-full">
+    <div>
+    <BrowserFrame url="app.ciniops.in/meera" tabTitle="Meera — Ciniops">
       <CameraStage
         width={760}
         height={500}
@@ -169,8 +208,72 @@ export function CiniopsDemo() {
         </div>
       </CameraStage>
     </BrowserFrame>
+    <ChapterNav {...chapters} />
+    </div>
   )
 }
+
+/* ---------- chapter controls, under the frame ---------- */
+
+function ChapterNav({ scene, done, go }: { scene: number; done: boolean; go: (i: number) => void }) {
+  const reduced = useReducedMotion()
+  const last = scene === SCENES.length - 1
+  const ready = done && !reduced // nudge Next once the chapter has played
+
+  return (
+    <div className="mt-4 flex items-center gap-3 sm:gap-4">
+      <button
+        onClick={() => go(scene - 1)}
+        disabled={scene === 0}
+        aria-label="Previous chapter"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/15 text-ink transition-colors hover:border-white/35 hover:bg-white/5 disabled:pointer-events-none disabled:opacity-30"
+      >
+        <ArrowLeft className="h-4 w-4" />
+      </button>
+
+      <div className="min-w-0 flex-1 text-center">
+        <p className="truncate text-sm font-medium text-ink">
+          <span className="mr-2 font-display text-xs tabular-nums text-faint">
+            {pad2(scene + 1)} / {pad2(SCENES.length)}
+          </span>
+          {SCENES[scene].name}
+        </p>
+        <div className="mt-2 flex justify-center gap-1.5">
+          {SCENES.map((s, i) => (
+            <button
+              key={s.name}
+              onClick={() => go(i)}
+              aria-label={`Go to ${s.name}`}
+              aria-current={i === scene}
+              className="group py-1.5"
+            >
+              <span
+                className={`block h-1.5 rounded-full transition-all duration-500 ${
+                  i === scene ? 'w-6 bg-ink' : i < scene ? 'w-1.5 bg-white/50' : 'w-1.5 bg-white/20 group-hover:bg-white/40'
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <motion.button
+        onClick={() => go(scene + 1)}
+        aria-label={last ? 'Start over' : 'Next chapter'}
+        animate={ready ? { scale: [1, 1.06, 1] } : { scale: 1 }}
+        transition={ready ? { duration: 1.4, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.2 }}
+        className={`flex h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-ink px-4 text-sm font-medium text-bg transition-shadow hover:bg-white sm:px-5 ${
+          ready ? 'shadow-[0_0_0_4px_rgba(251,113,133,0.25)]' : ''
+        }`}
+      >
+        <span className="hidden sm:inline">{last ? 'Start over' : 'Next'}</span>
+        {last ? <RotateCcw className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+      </motion.button>
+    </div>
+  )
+}
+
+const pad2 = (n: number) => String(n).padStart(2, "0")
 
 /* ---------- chrome ---------- */
 
