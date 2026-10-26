@@ -123,12 +123,6 @@ export default function PitchContact() {
             We're opening {pitch.title} to a small group of productions first. Whether you'd like to run it on your
             next schedule, partner with us or invest, tell us a little about yourself and we'll be in touch.
           </p>
-          <p className="mt-6 text-sm text-faint">
-            We read every note and reply personally. Prefer email?{' '}
-            <a href={`mailto:${CONTACT_EMAIL}`} className={cn('underline-offset-4 hover:underline', a.text)}>
-              {CONTACT_EMAIL}
-            </a>
-          </p>
         </div>
 
         {/* Right: the form, or the thank-you */}
