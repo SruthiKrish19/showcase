@@ -109,7 +109,9 @@ export default function PitchDemo() {
         )}
         <p className="text-xs text-faint">
           {showing === 'film'
-            ? 'Best with sound on. Tap the film to pause.'
+            ? mobile
+              ? 'Best with sound on. Turn your phone sideways for full screen.'
+              : 'Best with sound on. Tap the film to pause.'
             : 'Use the arrows to move through it. Names and amounts are illustrative.'}
         </p>
       </div>

@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { Play, RotateCcw, Volume2 } from 'lucide-react'
+import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react'
+import { Maximize2, Minimize2, Play, RotateCcw, Volume2 } from 'lucide-react'
+import { cn } from '../../lib/cn'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 
 type State = 'starting' | 'needs-tap' | 'playing' | 'paused' | 'ended'
 
@@ -8,6 +10,13 @@ type Props = {
   poster: string
   title: string
 }
+
+/** Phones and tablets — where the corner full-screen button is offered. */
+const TOUCH = '(pointer: coarse)'
+/** A phone turned sideways: the film takes the whole screen without asking. */
+const SIDEWAYS = '(pointer: coarse) and (orientation: landscape) and (max-height: 540px)'
+
+type IOSVideo = HTMLVideoElement & { webkitEnterFullscreen?: () => void }
 
 /**
  * The pitch film as a plain video — no player controls, just the picture.
@@ -18,10 +27,18 @@ type Props = {
  * Tap the video to pause and again to carry on; at the end it offers
  * Play again. The video element's own events are the single source of
  * truth for what the overlay shows.
+ *
+ * On phones a 16:9 film is small held upright, so there is a corner
+ * full-screen button (Android goes landscape too; iPhone only allows its
+ * own player), and turning the phone sideways fills the screen by itself.
  */
 export function VideoFilm({ src, poster, title }: Props) {
   const ref = useRef<HTMLVideoElement>(null)
+  const wrap = useRef<HTMLDivElement>(null)
   const [state, setState] = useState<State>('starting')
+  const [full, setFull] = useState(false)
+  const touch = useMediaQuery(TOUCH)
+  const sideways = useMediaQuery(SIDEWAYS)
 
   const play = (fromStart: boolean) => {
     const v = ref.current
@@ -33,6 +50,16 @@ export function VideoFilm({ src, poster, title }: Props) {
 
   useEffect(() => {
     play(true)
+  }, [])
+
+  useEffect(() => {
+    const onChange = () => {
+      const on = document.fullscreenElement === wrap.current
+      setFull(on)
+      if (!on) screen.orientation?.unlock?.()
+    }
+    document.addEventListener('fullscreenchange', onChange)
+    return () => document.removeEventListener('fullscreenchange', onChange)
   }, [])
 
   const onTap = () => {
@@ -49,15 +76,48 @@ export function VideoFilm({ src, poster, title }: Props) {
     }
   }
 
+  const toggleFull = (e: MouseEvent) => {
+    e.stopPropagation() // the corner button must not also pause the film
+    const v = ref.current as IOSVideo | null
+    const box = wrap.current
+    if (!v || !box) return
+    if (document.fullscreenElement) {
+      void document.exitFullscreen().catch(() => {})
+      return
+    }
+    if (state !== 'playing') play(state === 'ended' || state === 'needs-tap')
+    if (box.requestFullscreen) {
+      // Android and desktop: our own frame goes full screen, overlays and all
+      // and turns landscape where the browser allows it (it may refuse; that's fine)
+      box
+        .requestFullscreen()
+        .then(() => screen.orientation?.lock?.('landscape').catch(() => {}))
+        .catch(() => v.webkitEnterFullscreen?.())
+    } else {
+      // iPhone: only the built-in player can go full screen
+      v.webkitEnterFullscreen?.()
+    }
+  }
+
+  const fill = full || sideways
+
   return (
     <div
+      ref={wrap}
       role="button"
       tabIndex={0}
       aria-label={state === 'playing' ? `Pause ${title}` : `Play ${title}`}
       onClick={onTap}
       onKeyDown={onKey}
-      className="group relative w-full cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-black shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95)] select-none"
-      style={{ aspectRatio: '16 / 9' }}
+      className={cn(
+        'group relative w-full cursor-pointer overflow-hidden bg-black select-none',
+        fill
+          ? 'h-full rounded-none border-0'
+          : 'rounded-2xl border border-white/10 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.95)]',
+        // Sideways without real full screen: cover the page ourselves
+        sideways && !full && 'fixed inset-0 z-[70]',
+      )}
+      style={fill ? undefined : { aspectRatio: '16 / 9' }}
     >
       <video
         ref={ref}
@@ -68,7 +128,7 @@ export function VideoFilm({ src, poster, title }: Props) {
         onPlaying={() => setState('playing')}
         onPause={(e) => setState(e.currentTarget.ended ? 'ended' : 'paused')}
         onEnded={() => setState('ended')}
-        className="h-full w-full object-cover"
+        className={cn('h-full w-full', fill ? 'object-contain' : 'object-cover')}
       />
 
       {state !== 'playing' && state !== 'starting' && (
@@ -91,6 +151,16 @@ export function VideoFilm({ src, poster, title }: Props) {
             </span>
           )}
         </div>
+      )}
+
+      {touch && (
+        <button
+          onClick={toggleFull}
+          aria-label={full ? 'Exit full screen' : 'Full screen'}
+          className="absolute right-2.5 bottom-2.5 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-white/90 backdrop-blur"
+        >
+          {full ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+        </button>
       )}
     </div>
   )
