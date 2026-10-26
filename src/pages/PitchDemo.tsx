@@ -64,12 +64,8 @@ export default function PitchDemo() {
           height constraint back into the width on a narrow screen. */}
       <div className="relative mx-auto flex min-h-0 w-full max-w-6xl flex-1 items-center justify-center py-4 sm:py-6">
         {showing === 'film' && pitch.film ? (
-          // Width follows the free height. Phones
-          // get the portrait cut (9:16), everything else the 16:9 one.
-          <div
-            className="w-full"
-            style={{ maxWidth: mobile ? 'calc((100svh - 170px) * 9 / 16)' : 'calc((100svh - 210px) * 16 / 9)' }}
-          >
+          // A 16:9 video; its width follows the free height so it never overflows
+          <div className="w-full" style={{ maxWidth: 'calc((100svh - 210px) * 16 / 9)' }}>
             <Film film={pitch.film} />
           </div>
         ) : pitch.demo ? (
@@ -92,7 +88,7 @@ export default function PitchDemo() {
           <div role="tablist" aria-label="What to watch" className="inline-flex rounded-full border border-white/10 bg-white/[0.03] p-1">
             {(
               [
-                ['film', 'Film · 32s'],
+                ['film', 'Film · 1:32'],
                 ['walkthrough', 'Product walkthrough'],
               ] as const
             ).map(([key, label]) => (
@@ -113,7 +109,7 @@ export default function PitchDemo() {
         )}
         <p className="text-xs text-faint">
           {showing === 'film'
-            ? 'Tap Sound for music. Tap the film to pause.'
+            ? 'Best with sound on. Tap the film to pause.'
             : 'Use the arrows to move through it. Names and amounts are illustrative.'}
         </p>
       </div>
