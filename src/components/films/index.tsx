@@ -1,18 +1,17 @@
-import type { ComponentType } from 'react'
-import { CiniopsFilm } from './CiniopsFilm'
+import { VideoFilm } from './VideoFilm'
 
 export type FilmKey = 'ciniops'
 
-const REGISTRY: Record<FilmKey, ComponentType> = {
-  ciniops: CiniopsFilm,
+/** Rendered films, served from /public. */
+const REGISTRY: Record<FilmKey, { src: string; poster: string; title: string }> = {
+  ciniops: {
+    src: '/films/ciniops/ciniops-website.mp4',
+    poster: '/films/ciniops/poster.jpg',
+    title: 'the Ciniops film',
+  },
 }
 
-/**
- * A short motion piece for a pitch. Unlike a demo it is not a loop of the
- * product in use but a told story — and it is interactive: scrub, pause,
- * jump chapters, parallax on the pointer.
- */
+/** The pitch film: a video that tells the story before the walkthrough shows the product. */
 export function Film({ film }: { film: FilmKey }) {
-  const Component = REGISTRY[film]
-  return <Component />
+  return <VideoFilm {...REGISTRY[film]} />
 }

@@ -17,7 +17,6 @@ export const pitches: Pitch[] = [
     stage: 'concept',
     accent: 'rose',
     category: 'Vertical SaaS · Film production',
-    demo: 'ciniops',
     film: 'ciniops',
     problem:
       'A film set runs on a script nobody can search, cash bundles with handwritten vouchers, and a call sheet rebuilt every night for four WhatsApp groups. The producer sees overspend late. The AD never knows who read v3. The director won’t share the script because it leaks.',
@@ -129,9 +128,9 @@ export const pitches: Pitch[] = [
       {
         kind: 'ask',
         title: 'Looking for pilot productions and early partners.',
-        body: 'Be in before the first pilot wraps and the pricing is set from real usage.',
+        body: 'Free during the beta, rolling out soon. Be in before the first pilot wraps and the pricing is set from real usage.',
         cta: 'Start a conversation',
-        href: '/#about',
+        href: '/pitch/ciniops/contact',
       },
     ],
   },

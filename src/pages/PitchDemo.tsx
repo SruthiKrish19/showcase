@@ -48,35 +48,38 @@ export default function PitchDemo() {
           <ArrowLeft className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-0.5" />
           All pitches
         </Link>
-        <Link
-          to={`/pitch/${pitch.slug}`}
-          className={cn(
-            'inline-flex items-center gap-1.5 text-sm transition-colors hover:text-ink',
-            a.text,
-          )}
-        >
-          Open the deck
-          <ArrowUpRight className="h-4 w-4" />
-        </Link>
+        <div className="flex items-center gap-4 sm:gap-6">
+          <Link
+            to={`/pitch/${pitch.slug}`}
+            className={cn('inline-flex items-center gap-1.5 text-sm transition-colors hover:text-ink', a.text)}
+          >
+            <span className="sm:hidden">Deck</span>
+            <span className="hidden sm:inline">Open the deck</span>
+            <ArrowUpRight className="h-4 w-4" />
+          </Link>
+          <Link
+            to={`/pitch/${pitch.slug}/contact`}
+            className="inline-flex h-9 items-center rounded-full bg-ink px-4 text-sm font-medium text-bg transition-colors hover:bg-white"
+          >
+            Get in touch
+          </Link>
+        </div>
       </div>
 
       {/* The frame takes all the height it can; aspect-ratio carries the
           height constraint back into the width on a narrow screen. */}
       <div className="relative mx-auto flex min-h-0 w-full max-w-6xl flex-1 items-center justify-center py-4 sm:py-6">
         {showing === 'film' && pitch.film ? (
-          // Width follows the free height. Phones
-          // get the portrait cut (9:16), everything else the 16:9 one.
-          <div
-            className="w-full"
-            style={{ maxWidth: mobile ? 'calc((100svh - 170px) * 9 / 16)' : 'calc((100svh - 210px) * 16 / 9)' }}
-          >
+          // A 16:9 video; its width follows the free height so it never overflows
+          <div className="w-full" style={{ maxWidth: 'calc((100svh - 210px) * 16 / 9)' }}>
             <Film film={pitch.film} />
           </div>
         ) : pitch.demo ? (
           <div
             className="max-h-full max-w-full"
             style={mobile && isFluidDemo(pitch.demo) ? { width: '100%' } : {
-              aspectRatio: isPhoneDemo(pitch.demo) ? '312 / 632' : '760 / 560',
+              // A fluid demo carries its own chapter buttons under the frame
+              aspectRatio: isPhoneDemo(pitch.demo) ? '312 / 632' : isFluidDemo(pitch.demo) ? '760 / 640' : '760 / 560',
               height: isPhoneDemo(pitch.demo) ? '100%' : undefined,
               width: isPhoneDemo(pitch.demo) ? undefined : '100%',
             }}
@@ -91,7 +94,7 @@ export default function PitchDemo() {
           <div role="tablist" aria-label="What to watch" className="inline-flex rounded-full border border-white/10 bg-white/[0.03] p-1">
             {(
               [
-                ['film', 'Film · 32s'],
+                ['film', 'Film · 1:32'],
                 ['walkthrough', 'Product walkthrough'],
               ] as const
             ).map(([key, label]) => (
@@ -112,8 +115,10 @@ export default function PitchDemo() {
         )}
         <p className="text-xs text-faint">
           {showing === 'film'
-            ? 'Tap Sound for music. Tap the film to pause.'
-            : 'A simulated walkthrough. Names and amounts are illustrative.'}
+            ? mobile
+              ? 'Best with sound on. Turn your phone sideways for full screen.'
+              : 'Best with sound on. Tap the film to pause.'
+            : 'Use the arrows to move through it. Names and amounts are illustrative.'}
         </p>
       </div>
     </section>
