@@ -236,7 +236,7 @@ function Slide({
             Open the deck
             <ArrowUpRight className="h-4 w-4" />
           </Link>
-          {pitch.demo && (
+          {(pitch.film || pitch.demo) && (
             <Link
               to={`/pitch/${pitch.slug}/demo`}
               className="inline-flex items-center gap-2 rounded-full border border-white/10 px-5 py-2.5 text-sm font-medium text-muted transition-colors duration-300 hover:border-white/25 hover:bg-white/5 hover:text-ink"

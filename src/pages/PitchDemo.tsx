@@ -48,16 +48,22 @@ export default function PitchDemo() {
           <ArrowLeft className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-0.5" />
           All pitches
         </Link>
-        <Link
-          to={`/pitch/${pitch.slug}`}
-          className={cn(
-            'inline-flex items-center gap-1.5 text-sm transition-colors hover:text-ink',
-            a.text,
-          )}
-        >
-          Open the deck
-          <ArrowUpRight className="h-4 w-4" />
-        </Link>
+        <div className="flex items-center gap-4 sm:gap-6">
+          <Link
+            to={`/pitch/${pitch.slug}`}
+            className={cn('inline-flex items-center gap-1.5 text-sm transition-colors hover:text-ink', a.text)}
+          >
+            <span className="sm:hidden">Deck</span>
+            <span className="hidden sm:inline">Open the deck</span>
+            <ArrowUpRight className="h-4 w-4" />
+          </Link>
+          <Link
+            to={`/pitch/${pitch.slug}/contact`}
+            className="inline-flex h-9 items-center rounded-full bg-ink px-4 text-sm font-medium text-bg transition-colors hover:bg-white"
+          >
+            Get in touch
+          </Link>
+        </div>
       </div>
 
       {/* The frame takes all the height it can; aspect-ratio carries the
