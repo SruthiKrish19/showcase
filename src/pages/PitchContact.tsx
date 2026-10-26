@@ -2,7 +2,7 @@ import { useState, type FormEvent, type ReactNode } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowUpRight, Check, Loader2 } from 'lucide-react'
 import { getPitch } from '../content/pitches'
-import { CONTACT_EMAIL, CONTACT_ENDPOINT } from '../content/contact'
+import { CONTACT_ACCESS_KEY, CONTACT_EMAIL, CONTACT_ENDPOINT } from '../content/contact'
 import { accent } from '../lib/accent'
 import { cn } from '../lib/cn'
 
@@ -25,12 +25,20 @@ const INTERESTS = [
   { key: 'Invest', note: 'Back Ciniops at an early stage' },
 ] as const
 
-type Status = 'idle' | 'sending' | 'sent' | 'error'
+/**
+ * `slow`: still waiting after a few seconds. `unsure`: the service was
+ * reached but timed out or broke before answering — the relay may still
+ * have delivered, so we don't call it a failure.
+ */
+type Status = 'idle' | 'sending' | 'slow' | 'sent' | 'unsure' | 'error'
+
+/** Give up waiting after this long. */
+const TIMEOUT_MS = 30_000
 
 /**
  * "Start a conversation": who they are, how they'd like to be involved —
  * use it, partner, invest, or any mix — and what they'd want it to solve.
- * Sent through FormSubmit to the address in content/contact.ts.
+ * Sent through Web3Forms to the inbox set up in content/contact.ts.
  */
 export default function PitchContact() {
   const { slug } = useParams()
@@ -60,11 +68,16 @@ export default function PitchContact() {
     const name = get('name')
     const finalRole = role === 'Other' ? get('roleOther') || 'Other' : role
     setStatus('sending')
+    const slow = setTimeout(() => setStatus((s) => (s === 'sending' ? 'slow' : s)), 5000)
+    const abort = new AbortController()
+    const give = setTimeout(() => abort.abort(), TIMEOUT_MS)
     try {
+      // Plain form data with no custom headers: no CORS preflight round trip.
       const res = await fetch(CONTACT_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
+        signal: abort.signal,
+        body: toFormData({
+          access_key: CONTACT_ACCESS_KEY,
           name,
           email: get('email'),
           phone: get('phone') || '—',
@@ -73,18 +86,26 @@ export default function PitchContact() {
           involvement: interests.join(', '),
           notes: get('notes') || '—',
           pitch: pitch.title,
-          _subject: `${pitch.title} enquiry · ${name} · ${interests.join(' + ')}`,
-          _template: 'table',
-          _captcha: 'false',
-          _honey: get('_honey'),
+          subject: `${pitch.title} enquiry · ${name} · ${interests.join(' + ')}`,
+          // Honeypot: a hidden box people never tick; Web3Forms rejects it if bots do
+          ...(f.get('botcheck') ? { botcheck: 'on' } : {}),
         }),
       })
-      const data = (await res.json().catch(() => ({}))) as { success?: string | boolean }
-      if (!res.ok || String(data.success) !== 'true') throw new Error('not delivered')
-      setSentTo({ name: name.split(' ')[0], email: get('email') })
-      setStatus('sent')
+      const data = (await res.json().catch(() => null)) as { success?: string | boolean } | null
+      if (data && String(data.success) === 'true') {
+        setSentTo({ name: name.split(' ')[0], email: get('email') })
+        setStatus('sent')
+      } else if (data) {
+        setStatus('error') // the relay answered and said no
+      } else {
+        setStatus('unsure') // gateway timeout or an unreadable reply: it may still arrive
+      }
     } catch {
-      setStatus('error')
+      // Timed out or the connection dropped after sending — not a clear failure
+      setStatus(navigator.onLine ? 'unsure' : 'error')
+    } finally {
+      clearTimeout(slow)
+      clearTimeout(give)
     }
   }
 
@@ -148,8 +169,8 @@ export default function PitchContact() {
             </div>
           ) : (
             <form onSubmit={onSubmit} className="space-y-5">
-              {/* Honeypot: hidden from people, filled in by bots, ignored by FormSubmit */}
-              <input type="text" name="_honey" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
+              {/* Honeypot: hidden from people, ticked by bots, rejected by Web3Forms */}
+              <input type="checkbox" name="botcheck" tabIndex={-1} className="hidden" aria-hidden />
 
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field label="Full name" required>
@@ -237,6 +258,17 @@ export default function PitchContact() {
                 />
               </Field>
 
+              {status === 'unsure' && (
+                <p className="rounded-xl border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-ink">
+                  This is taking longer than usual. Your message has most likely reached us — if you don't hear back,
+                  write to{' '}
+                  <a href={`mailto:${CONTACT_EMAIL}`} className="underline underline-offset-4">
+                    {CONTACT_EMAIL}
+                  </a>
+                  .
+                </p>
+              )}
+
               {status === 'error' && (
                 <p className="rounded-xl border border-rose/30 bg-rose/10 px-4 py-3 text-sm text-ink">
                   We couldn't send that just now. Please try again, or email{' '}
@@ -248,13 +280,17 @@ export default function PitchContact() {
               )}
 
               <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-xs text-faint">We'll only use your details to reply to you.</p>
+                <p className={cn('text-xs', status === 'slow' ? 'text-ink' : 'text-faint')} aria-live="polite">
+                  {status === 'slow'
+                    ? 'Still sending — please keep this page open.'
+                    : "We'll only use your details to reply to you."}
+                </p>
                 <button
                   type="submit"
-                  disabled={status === 'sending'}
+                  disabled={status === 'sending' || status === 'slow'}
                   className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-ink px-6 text-sm font-semibold text-bg transition-colors hover:bg-white disabled:opacity-60"
                 >
-                  {status === 'sending' ? (
+                  {status === 'sending' || status === 'slow' ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" /> Sending
                     </>
@@ -293,4 +329,10 @@ function Field({ label, required, children }: { label: string; required?: boolea
       {children}
     </label>
   )
+}
+
+const toFormData = (fields: Record<string, string>) => {
+  const fd = new FormData()
+  for (const [k, v] of Object.entries(fields)) fd.append(k, v)
+  return fd
 }
