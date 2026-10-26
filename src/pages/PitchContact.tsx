@@ -265,6 +265,13 @@ export default function PitchContact() {
                   )}
                 </button>
               </div>
+
+              <p className="border-t border-white/8 pt-5 text-center text-sm text-muted">
+                Or write to us at{' '}
+                <a href={`mailto:${CONTACT_EMAIL}`} className={cn('font-medium underline-offset-4 hover:underline', a.text)}>
+                  {CONTACT_EMAIL}
+                </a>
+              </p>
             </form>
           )}
         </div>
