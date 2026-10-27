@@ -9,6 +9,7 @@ const LINKS = [
   { label: 'Work', href: '/#work' },
   ...(SHOW_PITCHES ? [{ label: 'Pitches', href: '/#pitches' }] : []),
   { label: 'About', href: '/#about' },
+  { label: 'Contact', href: '/#contact' },
 ]
 
 export function Nav() {
