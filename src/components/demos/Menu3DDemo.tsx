@@ -94,7 +94,11 @@ export function Menu3DDemo() {
             style={{ background: 'radial-gradient(85% 60% at 50% 20%, #ffffff, #efe9e1 70%, #e4dcd1)' }}
           >
             <div className="absolute inset-0">
-              <StudioScene kind={dish.kind} boost={dragging} />
+              <StudioScene
+                kind={dish.kind}
+                boost={dragging}
+                fallback={<img src={dish.photo} alt="" className="h-full w-full object-cover" />}
+              />
             </div>
 
             <span className="absolute left-3 top-3 rounded-full bg-[#15161a]/85 px-2 py-[3px] text-[9px] font-medium text-white">360°</span>
