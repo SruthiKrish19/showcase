@@ -25,7 +25,10 @@ export function ArMenuDemo() {
         <div className="relative h-full w-full overflow-hidden bg-[#1a110b]">
           {/* Camera feed */}
           <div className="absolute inset-0">
-            <ArScene placed={placed} />
+            <ArScene
+              placed={placed}
+              fallback={<img src="/demo/rest-interior.jpg" alt="" className="h-full w-full object-cover" />}
+            />
           </div>
 
           {/* Lens vignette + sensor grain, fixed to the camera not the world */}

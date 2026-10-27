@@ -6,11 +6,13 @@ import PitchDetail from './pages/PitchDetail'
 import PitchDemo from './pages/PitchDemo'
 import PitchContact from './pages/PitchContact'
 import NotFound from './pages/NotFound'
+import RouteError from './pages/RouteError'
 import { SHOW_PITCHES } from './content/flags'
 
 const router = createBrowserRouter([
   {
     element: <RootLayout />,
+    errorElement: <RouteError />,
     children: [
       { path: '/', element: <Home /> },
       { path: '/work/:slug', element: <WorkDetail /> },

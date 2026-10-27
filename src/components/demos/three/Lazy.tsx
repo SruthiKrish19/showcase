@@ -1,4 +1,4 @@
-import { lazy, Suspense, type ComponentProps } from 'react'
+import { Component, lazy, Suspense, type ComponentProps, type ReactNode } from 'react'
 
 /**
  * three.js is a large dependency and only two of the six demos need it, so it
@@ -17,18 +17,43 @@ function Loading() {
   )
 }
 
-export function StudioScene(props: ComponentProps<typeof Studio>) {
+/**
+ * Some phones can't create a WebGL context (hardware acceleration off, GPU
+ * blocklisted, too many tabs). Without this the error takes the whole page
+ * down; with it the demo shows its still instead. Also covers the chunk
+ * failing to load.
+ */
+class SceneBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false }
+
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children
+  }
+}
+
+/** Shown in place of the scene when 3D isn't available. */
+type Fallback = { fallback?: ReactNode }
+
+export function StudioScene({ fallback = null, ...props }: ComponentProps<typeof Studio> & Fallback) {
   return (
-    <Suspense fallback={<Loading />}>
-      <Studio {...props} />
-    </Suspense>
+    <SceneBoundary fallback={fallback}>
+      <Suspense fallback={<Loading />}>
+        <Studio {...props} />
+      </Suspense>
+    </SceneBoundary>
   )
 }
 
-export function ArScene(props: ComponentProps<typeof Ar>) {
+export function ArScene({ fallback = null, ...props }: ComponentProps<typeof Ar> & Fallback) {
   return (
-    <Suspense fallback={<Loading />}>
-      <Ar {...props} />
-    </Suspense>
+    <SceneBoundary fallback={fallback}>
+      <Suspense fallback={<Loading />}>
+        <Ar {...props} />
+      </Suspense>
+    </SceneBoundary>
   )
 }
